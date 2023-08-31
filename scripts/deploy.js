@@ -24,7 +24,7 @@ async function main() {
   console.log(
       `Value token deployed to ${valueToken.address}`
   );
-
+ 
   const mintTx = await informationToken.mint(['0x380CF025FB4763e6C3b811938c12e4790496925f'], [1000]);
 
   await hre.tenderly.persistArtifacts({

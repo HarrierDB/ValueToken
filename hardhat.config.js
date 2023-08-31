@@ -21,7 +21,7 @@ module.exports = {
   defaultNetwork: "devnet",
   networks: {
     devnet: {
-      url: "https://rpc.vnet.tenderly.co/devnet/valuetokentest/632c4387-54cb-48a9-a082-58e845f9876c",
+      url: "https://rpc.vnet.tenderly.co/devnet/valuetokentest/b6fd47e6-a1df-4c70-82b9-daa4ebf56947",
       chainId: 1,
       gasPrice: 20000000000, // 可选，设置gas价格
       // 其他可选配置...
