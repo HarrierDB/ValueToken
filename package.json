@@ -9,6 +9,7 @@
     "dotenv": "^16.3.1"
   },
   "scripts": {
-    "deploy": "npx hardhat run scripts/deploy.js --network devnet"
+    "deploy": "npx hardhat run scripts/deploy.js --network devnet",
+    "list_information": "npx hardhat run scripts/listInformation.js --network devnet"
   }
 }

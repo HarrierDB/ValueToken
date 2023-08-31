@@ -2,7 +2,8 @@ require("@nomicfoundation/hardhat-toolbox");
 require("@tenderly/hardhat-tenderly");
 
 require("dotenv").config();
-privateKey = process.env.PRIVATE_KEY;
+PRIVATE_KEY = process.env.PRIVATE_KEY;
+DEVNET_RPC_URL = process.env.DEVNET_RPC_URL;
 
 const tdly = require("@tenderly/hardhat-tenderly");
 tdly.setup({automaticVerifications: true});
@@ -21,7 +22,7 @@ module.exports = {
   defaultNetwork: "devnet",
   networks: {
     devnet: {
-      url: "https://rpc.vnet.tenderly.co/devnet/valuetokentest/448efe38-bffb-4ea7-a704-176d1b148da7",
+      url: DEVNET_RPC_URL,
       chainId: 1,
       gasPrice: 20000000000, // 可选，设置gas价格
       // 其他可选配置...
