@@ -5,14 +5,6 @@ pragma solidity >=0.8.0 <0.9.0;
 import './ERC20.sol';
 
 contract InformationToken is ERC20 {
-    mapping(address => uint256) private _balances;
-
-    mapping(address => mapping(address => uint256)) private _allowances;
-
-    uint256 private _totalSupply;
-
-    string private _name;
-    string private _symbol;
     // 定义事件
     event InformationListed(uint256 indexed infoIndex, address indexed seller, bytes32 keyHash, string description);
     event NewBid(uint256 indexed infoIndex, address indexed bidder, uint256 amount);
@@ -45,10 +37,6 @@ contract InformationToken is ERC20 {
 
     address public owner;  // 合约的所有者
 
-//    string public name;
-//    string public symbol;
-//    uint8 public decimals = 18;
-
     // onlyOwner修饰符
     modifier onlyOwner() {
         require(msg.sender == owner, "Only the owner can call this function.");
@@ -56,11 +44,9 @@ contract InformationToken is ERC20 {
     }
 
     constructor(
-        string memory name,
-        string memory symbol
-    ) ERC20(name, symbol) public {
-        name = name;
-        symbol = symbol;
+        string memory name_,
+        string memory symbol_
+    ) ERC20(name_, symbol_) {
         owner = msg.sender;
     }
 
@@ -68,23 +54,16 @@ contract InformationToken is ERC20 {
     function mint(address[] memory recipients, uint256[] memory amounts) public onlyOwner {
         require(recipients.length == amounts.length, "Arrays must have the same length.");
         for (uint i = 0; i < recipients.length; i++) {
-            _balances[recipients[i]] += amounts[i];
-            _totalSupply += amounts[i];
-            emit Transfer(address(0), recipients[i], amounts[i]);
+            _mint(recipients[i], amounts[i]);
         }
     }
 
     // 领取10000个InformationToken
     function claimTokens() public {
         require(!hasClaimed[msg.sender], "You have already claimed tokens.");
-
-        uint256 amount = 10000 * 10 ** decimals();  // 考虑了小数位
-        _balances[msg.sender] += amount;
-        _totalSupply += amount;
-
-        hasClaimed[msg.sender] = true;  // 标记该地址已领取
-
-        emit Transfer(address(0), msg.sender, amount);
+        uint256 amount = 10000 * 10 ** decimals();
+        _mint(msg.sender, amount);
+        hasClaimed[msg.sender] = true;
     }
 
     // 上架信息
@@ -102,17 +81,14 @@ contract InformationToken is ERC20 {
         });
 
         informations.push(newInformation);
-
-        emit InformationListed(informations.length - 1, msg.sender, _keyHash, _description);  // 触发事件
-
+        emit InformationListed(informations.length - 1, msg.sender, _keyHash, _description);
     }
 
     // 出价
     function bid(uint256 infoIndex, uint256 tokenAmount) public {
-        require(transfer(address(this), tokenAmount), "Token transfer failed.");
+        require(transferFrom(msg.sender, address(this), tokenAmount), "Token transfer failed.");
 
         Information storage info = informations[infoIndex];
-
         require(block.timestamp < info.auctionEndTime, "Auction has ended.");
         require(tokenAmount > info.highestBid, "There is a higher bid.");
 
@@ -130,11 +106,9 @@ contract InformationToken is ERC20 {
         });
 
         bidHistory[infoIndex].push(newBid);
-
         emit NewBid(infoIndex, msg.sender, tokenAmount);
     }
 
-    // 获取出价历史
     function getBidHistory(uint256 infoIndex) public view returns (Bid[] memory) {
         return bidHistory[infoIndex];
     }
@@ -143,15 +117,10 @@ contract InformationToken is ERC20 {
     // 结束竞拍
     function endAuction(uint256 infoIndex) public {
         Information storage info = informations[infoIndex];
-
         require(block.timestamp >= info.auctionEndTime, "Auction not yet ended.");
         require(!info.isSold, "Auction has already ended.");
 
         info.isSold = true;
-
-        address seller = info.seller;
-        uint256 amount = info.highestBid;
-
-        emit AuctionEnded(infoIndex, info.highestBidder, info.highestBid);  // 触发事件
+        emit AuctionEnded(infoIndex, info.highestBidder, info.highestBid);
     }
 }
