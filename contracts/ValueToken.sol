@@ -5,26 +5,16 @@ pragma solidity >=0.8.0 <0.9.0;
 import "./InformationToken.sol";  // 导入InformationToken合约
 
 contract ValueToken is ERC20 {
-    mapping(address => uint256) private _balances;
-
-    mapping(address => mapping(address => uint256)) private _allowances;
-
-    uint256 private _totalSupply;
-
-    string private _name;
-    string private _symbol;
-
     InformationToken public informationToken;  // InformationToken合约的实例
 
-
     constructor(
-        string memory name,
-        string memory symbol,
+        string memory name_,
+        string memory symbol_,
         address _informationToken
-    ) ERC20(name, symbol) public {
+    ) ERC20(name_, symbol_) {
         informationToken = InformationToken(_informationToken);
-
     }
+
     // 重计量
     function remeasure(uint256 infoIndex) public view returns (uint256) {
         InformationToken.Bid[] memory bids = informationToken.getBidHistory(infoIndex);
@@ -68,12 +58,8 @@ contract ValueToken is ERC20 {
                 previousBidder = bids[i].bidder;
 
                 // 派发ValueToken
-                _balances[bids[i].bidder] += valueTokenAmount;
-                _totalSupply += valueTokenAmount;
-
-                emit Transfer(address(0), bids[i].bidder, valueTokenAmount);
+                _mint(bids[i].bidder, valueTokenAmount);
             }
         }
     }
-
 }

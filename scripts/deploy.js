@@ -26,6 +26,11 @@ async function main() {
   );
 
   const mintTx = await informationToken.mint(['0x380CF025FB4763e6C3b811938c12e4790496925f'], [1000]);
+
+  await hre.tenderly.persistArtifacts({
+    name: "informationToken",
+    address: informationToken.address,
+  })
 }
 
 // We recommend this pattern to be able to use async/await everywhere
