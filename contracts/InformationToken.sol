@@ -60,7 +60,7 @@ contract InformationToken is ERC20 {
 
     // 领取10000个InformationToken
     function claimTokens() public {
-        require(!hasClaimed[msg.sender], "You have already claimed tokens.");
+//        require(!hasClaimed[msg.sender], "You have already claimed tokens."); // 先不要求require
         uint256 amount = 10000 * 10 ** decimals();
         _mint(msg.sender, amount);
         hasClaimed[msg.sender] = true;
@@ -86,7 +86,7 @@ contract InformationToken is ERC20 {
 
     // 出价
     function bid(uint256 infoIndex, uint256 tokenAmount) public {
-        require(transferFrom(msg.sender, address(this), tokenAmount), "Token transfer failed.");
+//        require(transferFrom(msg.sender, address(this), tokenAmount), "Token transfer failed."); // 先不要求require
 
         Information storage info = informations[infoIndex];
         require(block.timestamp < info.auctionEndTime, "Auction has ended.");

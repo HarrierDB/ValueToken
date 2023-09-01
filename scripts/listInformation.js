@@ -6,13 +6,13 @@ async function main() {
 
     // 获取已部署的InformationToken合约
     const InformationToken = await hre.ethers.getContractFactory("InformationToken");
-    const informationToken = new hre.ethers.Contract("0x5d569831a189103ae868cea5f07e574abb76620b", InformationToken.interface, testAccount);
+    const informationToken = new hre.ethers.Contract("0x27c0c23fbb60417e712e91e4ee104a70edfcc8ed", InformationToken.interface, testAccount);
 
 
 
     // 准备listInformation函数的参数
-    const keyHash = ethers.utils.keccak256(hre.ethers.utils.toUtf8Bytes("some random string"));
-    const auctionDuration = 600; // 以秒为单位，例如600秒
+    const keyHash = hre.ethers.utils.keccak256(hre.ethers.utils.toUtf8Bytes("some random string"));
+    const auctionDuration = 60000000000000; // 以秒为单位，例如600秒
     const description = "This is a test information.";
 
     // 使用测试账户调用listInformation函数

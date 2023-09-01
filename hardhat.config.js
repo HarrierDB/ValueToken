@@ -24,12 +24,12 @@ module.exports = {
     devnet: {
       url: DEVNET_RPC_URL,
       chainId: 1,
-      gasPrice: 20000000000, // 可选，设置gas价格
+      gasPrice: 20000000000// 可选，设置gas价格
       // 其他可选配置...
-    },
+    }
   },
   tenderly:{
     project: "valuetoken",
-    username: "Peanuts",
+    username: "Peanuts"
   }
 };
