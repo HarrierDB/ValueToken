@@ -2,51 +2,33 @@ const hre = require("hardhat");
 
 async function main() {
 
-    const [owner, bidder1, bidder2] = await hre.ethers.getSigners();
-    console.log("Owner address:", owner.address);
-    console.log("Bidder1 address:", bidder1.address);
-    console.log("Bidder2 address:", bidder2.address);
+    const [owner, bidder1, bidder2, bidder3, bidder4, bidder5, bidder6, bidder7] = await hre.ethers.getSigners();
+    const bidders = [bidder1, bidder2, bidder3, bidder4, bidder5, bidder6, bidder7];
+
+    let currentBid = hre.ethers.BigNumber.from("7"); // 初始出价
+    const infoIndex = hre.ethers.BigNumber.from("0");  // 将JavaScript数值转换为BigNumber
 
     const InformationToken = await hre.ethers.getContractFactory("InformationToken");
-    const informationToken = new hre.ethers.Contract("0x27c0c23fbb60417e712e91e4ee104a70edfcc8ed", InformationToken.interface, owner);
+    const informationToken = new hre.ethers.Contract("0x7589347fe7b52c7da161f9abc2d36a5d26786bf3", InformationToken.interface, owner);
 
-    // claim token
-    await informationToken.connect(bidder1).claimTokens({gasLimit: 1000000});
-    await informationToken.connect(bidder2).claimTokens({gasLimit: 1000000});
+    // 循环为每个出价者进行出价 //0x9dC2980387fBC589B2d232dD5cB85CeE0eE95868 ValueToken
+    for (const bidder of bidders) {
+        // claim tokens
+        await informationToken.connect(bidder).claimTokens();
+        // approve
+        await informationToken.connect(bidder).approve(informationToken.address, hre.ethers.constants.MaxUint256);
 
-    const balance1 = await informationToken.balanceOf(bidder1.address);
-    const balance2 = await informationToken.balanceOf(bidder2.address);
+        currentBid = currentBid.add(100); // 每次增加1
 
-    console.log("Bidder 1 balance:", balance1.toString());
-    console.log("Bidder 2 balance:", balance2.toString());
+        // 执行出价操作
+        await informationToken.connect(bidder).bid(infoIndex, currentBid);
 
-    // 无限额度授权
-    await informationToken.connect(bidder1).approve(informationToken.address, hre.ethers.constants.MaxUint256);
-    await informationToken.connect(bidder2).approve(informationToken.address, hre.ethers.constants.MaxUint256);
-
-    // 检查 allowance
-    const allowance1 = await informationToken.allowance(bidder1.address, informationToken.address);
-    const allowance2 = await informationToken.allowance(bidder2.address, informationToken.address);
-
-    console.log("Bidder 1 allowance:", allowance1.toString());
-    console.log("Bidder 2 allowance:", allowance2.toString());
-
-    // 出价
-    const infoIndex = hre.ethers.BigNumber.from("1");  // 将JavaScript数值转换为BigNumber
-    // const tokenAmount1 = hre.ethers.BigNumber.from("1");  // 将JavaScript数值转换为BigNumber
-    //
-    // await informationToken.connect(bidder1).bid(infoIndex, tokenAmount1);
-    // console.log("Bid placed by bidder 1");
-
-    const tokenAmount2 = hre.ethers.BigNumber.from("2");  // 将JavaScript数值转换为BigNumber
-    await informationToken.connect(bidder2).bid(infoIndex, tokenAmount2);
-    console.log("Bid placed by bidder 2");
-
+        console.log(`Bidder ${bidder.address} placed a bid of ${currentBid.toString()}`);
+    }
 
     // 获取出价历史
     const bids = await informationToken.getBidHistory(infoIndex);
     console.log("Bids:", bids);
-
 }
 
 main().catch((error) => {

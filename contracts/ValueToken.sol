@@ -35,6 +35,7 @@ contract ValueToken is ERC20 {
     }
 
     function distributeValueTokens(uint256 infoIndex) public {
+        uint256 scalingFactor = 10**18;  // 用于模拟小数点后18位
         uint256 averagePrice = remeasure(infoIndex);  // 获取平均价
         require(averagePrice > 0, "Average price must be greater than zero.");
 
@@ -48,9 +49,9 @@ contract ValueToken is ERC20 {
             if (bids[i].timestamp >= oneHourAgo) {
                 uint256 valueTokenAmount;
                 if (previousBidder == address(0)) {
-                    valueTokenAmount = bids[i].price / averagePrice;  // 归一化
+                    valueTokenAmount = (bids[i].price * scalingFactor) / averagePrice;  // 归一化
                 } else {
-                    valueTokenAmount = (bids[i].price - previousBid) / averagePrice;  // 归一化差额
+                    valueTokenAmount = ((bids[i].price - previousBid) * scalingFactor) / averagePrice;  // 归一化差额
                 }
 
                 // 更新上一个出价和出价者
@@ -58,7 +59,7 @@ contract ValueToken is ERC20 {
                 previousBidder = bids[i].bidder;
 
                 // 派发ValueToken
-                _mint(bids[i].bidder, valueTokenAmount);
+                _mint(bids[i].bidder, valueTokenAmount);  // 这里再次除以 scalingFactor 以恢复原始单位
             }
         }
     }
