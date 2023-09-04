@@ -1,6 +1,7 @@
 require('dotenv').config();
 const hre = require("hardhat");
 const { ethers } = hre;
+const fs = require('fs');
 
 async function main() {
     const accounts = await ethers.getSigners();
@@ -11,10 +12,12 @@ async function main() {
 
     const auctionTimeDuration = 60 * 60 * 24 * 7; // 7 days
 
+    const uri = 'https://gist.githubusercontent.com/HarrierDB/4df3ae0a5f36a3171d6484bb3f815532/raw'
+
+
     for (let i = 0; i < testAccounts.length; i++) {
         const user = testAccounts[i];
         const valueAmount = ethers.utils.parseUnits((100 * (i + 1)).toString(), 18); // 指导价格依次递增
-        const uri = `uri${i + 1}`;
 
         const tx = await contract.connect(user).publishItem(uri, valueAmount, auctionTimeDuration);
         await tx.wait();

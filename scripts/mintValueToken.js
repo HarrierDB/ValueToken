@@ -18,7 +18,7 @@ async function main() {
     }
 
     // Save the random accounts to a JSON file for future use
-    fs.writeFileSync('randomAccounts.json', JSON.stringify(randomAccounts.map(acc => acc.address)));
+    fs.writeFileSync('randomAccounts.json', JSON.stringify(randomAccounts.map(acc => ({address: acc.address, privateKey: acc.privateKey}))));
 }
 
 main()
