@@ -7,6 +7,22 @@
 const hre = require("hardhat");
 const fs = require('fs');
 
+let envContent = fs.readFileSync('.env', 'utf8');
+// 替换或添加环境变量
+function replaceOrAddEnvVariable(variableName, variableValue) {
+    const regex = new RegExp(`^${variableName}=.*$`, 'm');
+    const newEntry = `${variableName}=${variableValue}`;
+
+    if (envContent.match(regex)) {
+        // 如果找到了变量，替换它
+        envContent = envContent.replace(regex, newEntry);
+    } else {
+        // 否则，添加新的变量
+        envContent += `\n${newEntry}`;
+    }
+}
+
+
 async function main() {
     const ERC721ForcedCirculation = await hre.ethers.getContractFactory("ERC721ForcedCirculation");
     const eRC721ForcedCirculation = await ERC721ForcedCirculation.deploy('ERC721ForcedCirculation', 'ERC721FC');
@@ -26,8 +42,9 @@ async function main() {
         `Value token deployed to ${valueTokenV2.address}`
     );
 
-    fs.appendFileSync('.env', `\nERC721_FORCED_CIRCULATION_ADDRESS=${eRC721ForcedCirculation.address}`);
-    fs.appendFileSync('.env', `\nVALUE_TOKEN_V2_ADDRESS=${valueTokenV2.address}`);
+    replaceOrAddEnvVariable('ERC721_FORCED_CIRCULATION_ADDRESS', eRC721ForcedCirculation.address);
+    replaceOrAddEnvVariable('VALUE_TOKEN_V2_ADDRESS', valueTokenV2.address);
+    fs.writeFileSync('.env', envContent, 'utf8');
 
 
     await hre.tenderly.persistArtifacts({

@@ -1,0 +1,47 @@
+{
+  "name": "Glasses #12347",
+  "description": "Glasses #12347",
+  "image": "https://ibb.co/f2ZdXNP",
+  "attributes": [
+    {
+      "trait_type": "Type",
+      "value": "Human"
+    },
+    {
+      "trait_type": "Hair Style",
+      "value": "Ponytail"
+    },
+    {
+      "trait_type": "Hair Color",
+      "value": "Dark"
+    },
+    {
+      "trait_type": "Glasses",
+      "value": "Aviators"
+    },
+    {
+      "trait_type": "Shirt",
+      "value": "Tube Top"
+    },
+    {
+      "trait_type": "Shirt Color",
+      "value": "Green"
+    },
+    {
+      "trait_type": "Pants",
+      "value": "Leggings"
+    },
+    {
+      "trait_type": "Pants Color",
+      "value": "Blue Camo"
+    },
+    {
+      "trait_type": "Shoes",
+      "value": "Canvas"
+    },
+    {
+      "trait_type": "Shoes Color",
+      "value": "Gray"
+    }
+  ]
+}

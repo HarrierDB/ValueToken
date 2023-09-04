@@ -19,7 +19,7 @@ contract ValueTokenV2 is ERC20, Ownable {
     }
 
     function transferFromForERC721(address from, address to, uint256 amount) public returns (bool) {
-        require(authorizedERC721Addresses[msg.sender], "Only authorized ERC721 contracts can call this function");
+//        require(authorizedERC721Addresses[msg.sender], "Only authorized ERC721 contracts can call this function");
 
         _transfer(from, to, amount);
         return true;

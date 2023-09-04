@@ -85,6 +85,9 @@ contract ERC721ForcedCirculation is ERC721URIStorage, Ownable {
 
         bidHistory[itemId].push(newBid);
 
+        // 授权新的临时所有者
+        _approve(msg.sender, itemId);
+
         // Force transfer of the item
         safeTransferFrom(items[itemId].temporaryOwner, msg.sender, itemId);
 
@@ -93,5 +96,10 @@ contract ERC721ForcedCirculation is ERC721URIStorage, Ownable {
 
         // Update the temporary owner
         items[itemId].temporaryOwner = msg.sender;
+    }
+
+    //get guide price
+    function getGuidePrice(uint256 itemId) public view returns (uint256) {
+        return items[itemId].guidePrice;
     }
 }
