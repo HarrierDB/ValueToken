@@ -9,7 +9,7 @@ async function main() {
     // Read the random accounts from the JSON file
     const randomAccounts = JSON.parse(fs.readFileSync('randomAccounts.json', 'utf8'));
     // Connect to the random accounts
-    const biddingAccounts = randomAccounts.map(address => hre.ethers.provider.getSigner(address));
+    const biddingAccounts = randomAccounts.map(account => hre.ethers.provider.getSigner(account.address));
 
     const contractAddress = process.env.ERC721_FORCED_CIRCULATION_ADDRESS; // 从.env文件中获取
     const contract = await ethers.getContractAt("ERC721ForcedCirculation", contractAddress);
