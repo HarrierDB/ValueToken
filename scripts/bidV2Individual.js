@@ -19,7 +19,7 @@ async function main() {
     for (let i = 1; i < 2; i++) {
         const user = biddingAccounts[i];
         const guidePrice = await contract.getGuidePrice(tokenId);
-        const bidAmount = guidePrice.add(ethers.utils.parseUnits((30).toString(), 18)); // 出价高于指导价，并依次递增
+        const bidAmount = guidePrice.add(ethers.utils.parseUnits((200).toString(), 18)); // 出价高于指导价，并依次递增
 
         const tx = await contract.connect(user).bid(tokenId, bidAmount);
         await tx.wait();
