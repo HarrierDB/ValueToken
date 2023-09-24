@@ -17,7 +17,7 @@ contract ERC721ForcedCirculation is ERC721URIStorage, Ownable {
     Counters.Counter private _itemCounter;
 
     struct Item {
-        uint256 itemId;
+        uint256 itemId;  //
         string uri;
         uint256 guidePrice;
         uint256 publishTime;

@@ -14,7 +14,7 @@ async function main() {
     const contractAddress = process.env.ERC721_FORCED_CIRCULATION_ADDRESS; // 从.env文件中获取
     const contract = await ethers.getContractAt("ERC721ForcedCirculation", contractAddress);
 
-    let tokenId = 1;
+    let tokenId = 1;  // adjust
 
     for (let i = 0; i < biddingAccounts.length; i++) {
         const user = biddingAccounts[i];

@@ -12,8 +12,8 @@ async function main() {
 
     const auctionTimeDuration = 60 * 60 * 24 * 7; // 7 days
 
-    const uri = 'https://gist.githubusercontent.com/HarrierDB/4df3ae0a5f36a3171d6484bb3f815532/raw'
-
+    // const uri = 'https://gist.githubusercontent.com/HarrierDB/4df3ae0a5f36a3171d6484bb3f815532/raw'
+    const uri = "https://gist.githubusercontent.com/HarrierDB/135cfbfbb25840ffd71dd4c2b39ab3e3/raw"
 
     for (let i = 0; i < testAccounts.length; i++) {
         const user = testAccounts[i];
