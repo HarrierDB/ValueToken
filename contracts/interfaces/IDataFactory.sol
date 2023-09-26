@@ -17,8 +17,7 @@ interface IDataFactory {
     function getDataAssetByDataOwner(address dataOwner, uint256 index) external view returns (address);
     function getDataAssetsLengthByDataOwner(address dataOwner) external view returns (uint256);
 
-    // 核心功能
-    function createDataAsset(string memory name, string memory symbol, uint8 datatype, bytes calldata data) external returns (address);
-
+    // 核心功能: 创建数据资产
+    function createDataAsset(string memory name, string memory symbol, uint8 dataType, uint16 dataStandard, bytes calldata data) external returns (address);
 
 }

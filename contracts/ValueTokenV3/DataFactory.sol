@@ -1,5 +1,34 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
+//                             /%&&%&%&&&&&&&%&&&&%.
+//                          %&%%&%%%&&@&%&&&&&&&&&&&&(,
+//                       *%%&&@%%&&&&%&&&%&&@@@@@@@@@@@&&(,
+//                      #%&&&&%#&%%#%&&&&&&&&&@@@@@&@@@@@@&&
+//                     %&%%%&&&%@&&%&&%&%&&%&&&&%%%%%&@@@&@&&
+//                    %%&%&&&&&&&&#%%%%%##((////****//%&@@&&&
+//                    %&&&%&&&&%#(/*/(//***,,,,,,,,,**/#&%@&&
+//                   #&&&&&&%/((**,,,.........,,,,,,,**(%&&&%
+//                    (%%&&(**,///*,,.........,,/((((**//&&%/
+//                     %%%(**(//*,.,**//....***,..,*/(///(&*,
+//                    ,*(%/*,**/#*&&,(,,,...*,(.&&,#(/***/#(/
+//                    ,*#%/,,,,,,.......,...,,..,.,,,,,,*(%#
+//                     ./**,,,..........,,.,,........,,,*///
+//                      ,,*,,,........,,,...,,,......,,****,
+//                       ,,,,,........**&%*(&**.....,,,***
+//                        ,,,,,.......,,,.,,,,.,..,,,,,***
+//                         ,,,,,,.,,,,,,,,,*,,,*,,,,,,,**
+//                          ,,,,,,,,,,**,,,,**/*,,,,****
+//                            ,**,,,,,,,,,,,,,********
+//                            ,*****,,,,,,,,,,***//**
+//                            ***************////////
+//                        #/,***,******************///*#,
+//                    ##%%&*,,,,,,,,,,,********,*****///&%%%
+//               ##%%%%&&&&&&&*,,,,...,,,,,,,,,,,,,*/@&&&&&&&&&%#
+//       %#%%%%%%&&&&&&&&&&&&&&&&&/*,......,,,/@&&&&&&&&&&&&&&&&&&&&%%%%
+//   (%&%&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&%%/
+// %&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&%%%&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&#
+//%&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&%&&&&%.
 
 import "@openzeppelin/contracts/access/Ownable.sol"; // 导入 Ownable 合约
 
@@ -11,6 +40,10 @@ import "./SemiFungibleDataAsset.sol"; // 导入半同质化数据资产合约
 contract DataFactory is IDataFactory, Ownable {
     // 存储创建的数据资产合约地址
     address[] public deployedDataAssets;
+    address[] public deployedPersonalValueDataAssets;
+    address[] public deployedPersonalDataAssets;
+    address[] public deployedCommodities;
+
     // 存储数据所有者创建的数据资产合约地址
     mapping(address => address[]) public deployedDataAssetsByDataOwner;
 
@@ -89,7 +122,6 @@ contract DataFactory is IDataFactory, Ownable {
         // 将数据资产地址存储在deployedDataAssetsByDataOwner映射中
         deployedDataAssetsByDataOwner[msg.sender].push(dataAsset);
 
-
         // 触发事件
         emit DataAssetCreated(dataAsset, msg.sender);
 
@@ -101,29 +133,47 @@ contract DataFactory is IDataFactory, Ownable {
     // 可接受721, 1155, 3525标准
     // 根据标准不同，创建不同的数据资产标准
     function createPersonalValueDataAsset(string memory name, string memory symbol, uint16 dataStandard, bytes calldata data) internal returns (address) {
+
+        address personalValueDataAsset;
+
         if (dataStandard == 721) {
-            return address(new NonFungibleDataAsset(name, symbol, data));
+            personalValueDataAsset = address(new NonFungibleDataAsset(name, symbol, data));
         } else if (dataStandard == 1155) {
-            return address(new MultiDuplicateNonFungibleDataAssetContract(name, symbol, data));
+            personalValueDataAsset = address(new MultiDuplicateNonFungibleDataAssetContract(name, symbol, data));
         } else if (dataStandard == 3525) {
-            return address(new SemiFungibleDataAsset(name, symbol, data));
+            personalValueDataAsset = address(new SemiFungibleDataAsset(name, symbol, data));
         } else {
             revert("Invalid data standard");
         }
+
+        deployedPersonalValueDataAssets.push(personalValueDataAsset);
+        return personalValueDataAsset;
     }
 
     // 适用于个人基础信息、个人收入、个人支出、个人投资数据
     // 只接受721标准
     function createPersonalDataAsset(string memory name, string memory symbol, uint16 dataStandard, bytes calldata data) internal returns (address) {
         require(dataStandard == 721, "Invalid data standard");
-        return address(new NonFungibleDataAsset(name, symbol, data));
+
+        address personalDataAsset;
+
+        personalDataAsset = address(new NonFungibleDataAsset(name, symbol, data));
+        deployedPersonalDataAssets.push(personalDataAsset);
+
+        return personalDataAsset;
     }
 
     // 适用于商品数据
     // 只接受721标准
     function createCommodity(string memory name, string memory symbol, uint16 dataStandard, bytes calldata data) internal returns (address) {
         require(dataStandard == 721, "Invalid data standard");
-        return address(new NonFungibleDataAsset(name, symbol, data));
+
+        address commodity;
+
+        commodity = address(new NonFungibleDataAsset(name, symbol, data));
+        deployedCommodities.push(commodity);
+
+        return commodity;
     }
 
 }
