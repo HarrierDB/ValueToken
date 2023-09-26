@@ -64,20 +64,21 @@ contract DataFactory is IDataFactory, Ownable {
     }
 
     // 实现接口函数 - 创建数据资产
-    function createDataAsset(string memory name, string memory symbol, uint8 datatype, bytes calldata data) external override returns (address) {
+    function createDataAsset(string memory name, string memory symbol, uint8 dataType, uint16 dataStandard, bytes calldata data) external override returns (address) {
         // 检查是否在黑名单上
         require(!blacklist[msg.sender], "Address is blacklisted");
 
         address dataAsset; // 声明数据资产地址变量
 
-        // 在这里实现创建数据资产的逻辑
-        // 部署一个新的数据资产合约，并将其地址存储在deployedDataAssets数组中
-        if (datatype == 0) {
-            dataAsset = address(new NonFungibleDataAsset(name, symbol, data));
-        } else if (datatype == 1) {
-            dataAsset = address(new MultiDuplicateNonFungibleDataAssetContract(name, symbol, data));
-        } else if (datatype == 2) {
-            dataAsset = address(new SemiFungibleDataAsset(name, symbol, data));
+        // 数据类型为0，创建个人价值数据资产
+        // 数据类型为1，创建个人数据资产
+        // 数据类型为2, 创建商品数据
+        if (dataType == 0) {
+            dataAsset = createPersonalValueDataAsset(name, symbol, dataStandard, data);
+        } else if (dataType == 1) {
+            dataAsset = createPersonalDataAsset(name, symbol, dataStandard, data);
+        } else if (dataType == 2) {
+            dataAsset = createCommodity(name, symbol, dataStandard, data);
         } else {
             revert("Invalid datatype");
         }
@@ -94,6 +95,35 @@ contract DataFactory is IDataFactory, Ownable {
 
         // 返回新创建的数据资产合约地址
         return dataAsset;
+    }
+
+    // 适用于个人劳动，规定时间戳、任务戳
+    // 可接受721, 1155, 3525标准
+    // 根据标准不同，创建不同的数据资产标准
+    function createPersonalValueDataAsset(string memory name, string memory symbol, uint16 dataStandard, bytes calldata data) internal returns (address) {
+        if (dataStandard == 721) {
+            return address(new NonFungibleDataAsset(name, symbol, data));
+        } else if (dataStandard == 1155) {
+            return address(new MultiDuplicateNonFungibleDataAssetContract(name, symbol, data));
+        } else if (dataStandard == 3525) {
+            return address(new SemiFungibleDataAsset(name, symbol, data));
+        } else {
+            revert("Invalid data standard");
+        }
+    }
+
+    // 适用于个人基础信息、个人收入、个人支出、个人投资数据
+    // 只接受721标准
+    function createPersonalDataAsset(string memory name, string memory symbol, uint16 dataStandard, bytes calldata data) internal returns (address) {
+        require(dataStandard == 721, "Invalid data standard");
+        return address(new NonFungibleDataAsset(name, symbol, data));
+    }
+
+    // 适用于商品数据
+    // 只接受721标准
+    function createCommodity(string memory name, string memory symbol, uint16 dataStandard, bytes calldata data) internal returns (address) {
+        require(dataStandard == 721, "Invalid data standard");
+        return address(new NonFungibleDataAsset(name, symbol, data));
     }
 
 }
