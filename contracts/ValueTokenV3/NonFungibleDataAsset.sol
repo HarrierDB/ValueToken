@@ -66,12 +66,15 @@ contract NonFungibleDataAsset is IDataAsset, ERC721URIStorage, Ownable {
     }
 
     function startAuction(Condition calldata condition) public override returns (bool) {
-        require(items[condition.itemId].dataCreator == msg.sender, "Only data creator can start auction.");
+        require(super.ownerOf(condition.itemId) == msg.sender, "Only owner can start auction."); // 只有数据资产的所有者(而非创建者)才能发起竞拍
         require(items[condition.itemId].auctionStatus == 0, "Auction has already started.");
 
         conditions[condition.itemId] = condition;
 
-        items[condition.itemId].auctionStatus = 1;
+        super.safeTransferFrom(msg.sender, address(this), condition.itemId); // 开始竞拍后将数据资产转移至合约地址
+        items[condition.itemId].owner = address(this); // 开始竞拍后将数据资产转移至合约地址
+        items[condition.itemId].auctionStatus = 1; // 竞拍状态改为开始
+
         return true;
     }
 
