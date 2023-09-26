@@ -30,7 +30,7 @@ async function main() {
     await eRC721ForcedCirculation.deployed();
 
     console.log(
-        `Information token deployed to ${eRC721ForcedCirculation.address}`
+        `ERC721ForcedCirculation deployed to ${eRC721ForcedCirculation.address}`
     );
 
     const ValueTokenV2 = await hre.ethers.getContractFactory("ValueTokenV2");
