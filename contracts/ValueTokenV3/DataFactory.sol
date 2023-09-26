@@ -45,15 +45,13 @@ contract DataFactory is IDataFactory, Ownable {
     address[] public deployedCommodities;
 
     // 存储数据所有者创建的数据资产合约地址
-    mapping(address => address[]) public deployedDataAssetsByDataOwner;
-
+    mapping(address => address[]) public deployedDataAssetsByDataCreator;
     // 黑名单映射
     mapping(address => bool) public blacklist;
 
     // 构造函数
     constructor() {
     }
-
 
     // 实现接口函数 - 添加地址到黑名单
     function addToBlacklist(address user) external override onlyOwner {
@@ -86,18 +84,18 @@ contract DataFactory is IDataFactory, Ownable {
     }
 
     // 实现接口函数 - 根据数据所有者获取数据资产地址
-    function getDataAssetByDataOwner(address dataOwner, uint256 index) external view override returns (address) {
+    function getDataAssetByDataCreator(address dataCreator, uint256 index) external view override returns (address) {
         // 根据数据所有者和index返回数据资产地址
-        return deployedDataAssetsByDataOwner[dataOwner][index];
+        return deployedDataAssetsByDataCreator[dataCreator][index];
     }
 
-    function getDataAssetsLengthByDataOwner(address dataOwner) external view override returns (uint256) {
+    function getDataAssetsLengthByDataCreator(address dataCreator) external view override returns (uint256) {
         // 根据数据所有者返回其数据资产的数量
-        return deployedDataAssetsByDataOwner[dataOwner].length;
+        return deployedDataAssetsByDataCreator[dataCreator].length;
     }
 
     // 实现接口函数 - 创建数据资产
-    function createDataAsset(string memory name, string memory symbol, uint8 dataType, uint16 dataStandard, bytes calldata data) external override returns (address) {
+    function createDataAsset(string memory name, string memory symbol, uint8 dataType, uint16 dataStandard) external override returns (address) {
         // 检查是否在黑名单上
         require(!blacklist[msg.sender], "Address is blacklisted");
 
@@ -107,11 +105,11 @@ contract DataFactory is IDataFactory, Ownable {
         // 数据类型为1，创建个人数据资产
         // 数据类型为2, 创建商品数据
         if (dataType == 0) {
-            dataAsset = createPersonalValueDataAsset(name, symbol, dataStandard, data);
+            dataAsset = createPersonalValueDataAsset(name, symbol, dataStandard);
         } else if (dataType == 1) {
-            dataAsset = createPersonalDataAsset(name, symbol, dataStandard, data);
+            dataAsset = createPersonalDataAsset(name, symbol, dataStandard);
         } else if (dataType == 2) {
-            dataAsset = createCommodity(name, symbol, dataStandard, data);
+            dataAsset = createCommodity(name, symbol, dataStandard);
         } else {
             revert("Invalid datatype");
         }
@@ -119,8 +117,8 @@ contract DataFactory is IDataFactory, Ownable {
         // 将数据资产地址存储在deployedDataAssets数组中
         deployedDataAssets.push(dataAsset);
 
-        // 将数据资产地址存储在deployedDataAssetsByDataOwner映射中
-        deployedDataAssetsByDataOwner[msg.sender].push(dataAsset);
+        // 将数据资产地址存储在deployedDataAssetsByDataCreator映射中
+        deployedDataAssetsByDataCreator[msg.sender].push(dataAsset);
 
         // 触发事件
         emit DataAssetCreated(dataAsset, msg.sender);
@@ -132,16 +130,16 @@ contract DataFactory is IDataFactory, Ownable {
     // 适用于个人劳动，规定时间戳、任务戳
     // 可接受721, 1155, 3525标准
     // 根据标准不同，创建不同的数据资产标准
-    function createPersonalValueDataAsset(string memory name, string memory symbol, uint16 dataStandard, bytes calldata data) internal returns (address) {
+    function createPersonalValueDataAsset(string memory name, string memory symbol, uint16 dataStandard) internal returns (address) {
 
         address personalValueDataAsset;
 
         if (dataStandard == 721) {
-            personalValueDataAsset = address(new NonFungibleDataAsset(name, symbol, data));
+            personalValueDataAsset = address(new NonFungibleDataAsset(name, symbol));
         } else if (dataStandard == 1155) {
-            personalValueDataAsset = address(new MultiDuplicateNonFungibleDataAssetContract(name, symbol, data));
+            personalValueDataAsset = address(new MultiDuplicateNonFungibleDataAssetContract(name, symbol));
         } else if (dataStandard == 3525) {
-            personalValueDataAsset = address(new SemiFungibleDataAsset(name, symbol, data));
+            personalValueDataAsset = address(new SemiFungibleDataAsset(name, symbol));
         } else {
             revert("Invalid data standard");
         }
@@ -152,12 +150,12 @@ contract DataFactory is IDataFactory, Ownable {
 
     // 适用于个人基础信息、个人收入、个人支出、个人投资数据
     // 只接受721标准
-    function createPersonalDataAsset(string memory name, string memory symbol, uint16 dataStandard, bytes calldata data) internal returns (address) {
+    function createPersonalDataAsset(string memory name, string memory symbol, uint16 dataStandard) internal returns (address) {
         require(dataStandard == 721, "Invalid data standard");
 
         address personalDataAsset;
 
-        personalDataAsset = address(new NonFungibleDataAsset(name, symbol, data));
+        personalDataAsset = address(new NonFungibleDataAsset(name, symbol));
         deployedPersonalDataAssets.push(personalDataAsset);
 
         return personalDataAsset;
@@ -165,12 +163,12 @@ contract DataFactory is IDataFactory, Ownable {
 
     // 适用于商品数据
     // 只接受721标准
-    function createCommodity(string memory name, string memory symbol, uint16 dataStandard, bytes calldata data) internal returns (address) {
+    function createCommodity(string memory name, string memory symbol, uint16 dataStandard) internal returns (address) {
         require(dataStandard == 721, "Invalid data standard");
 
         address commodity;
 
-        commodity = address(new NonFungibleDataAsset(name, symbol, data));
+        commodity = address(new NonFungibleDataAsset(name, symbol));
         deployedCommodities.push(commodity);
 
         return commodity;

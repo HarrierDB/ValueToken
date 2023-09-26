@@ -1,19 +1,42 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-// 竞拍条件
-struct Condition {
-    uint256 tokenId;
-    uint256 startPrice;
-    uint256 startTime;
-    uint256 reservePrice;
-    uint256 auctionDuration;
-    uint256 expirationTime;
-    bytes calldata data;
+import "../interfaces/IDataAsset.sol";
+
+
+
+// 数据资产基础信息
+struct Item {
+    uint256 itemId;
+    address dataAsset; // 指数据资产地址，需要手动转换成数据资产
+    address dataCreator;  // 指数据的最初创建者
+    string uri; // 数据资产的URI
+    address owner; // 指数据的当前所有者
+    uint256 timeCreated; // 数据资产创建时间
+    Offer[] offerHistory; // 出价历史
+    bytes extraParams;
 }
 
+
+
+// 竞拍开始条件
+struct Condition {
+    uint256 itemId;
+    uint256 startTime;
+    uint256 startPrice;
+    uint256 reservePrice;
+    address bidToken;  //要求的出价代币，通常为Valuecode
+    uint256 auctionDuration;
+    uint256 expirationTime;
+    bytes extraParams;
+}
+
+
+// 出价条件
 struct Offer {
-    uint256 tokenId;
-    uint256 price;
-    bytes calldata data;
+    uint256 itemId;
+    address bidder; // 出价者
+    uint256 bidAmount; // 以出价代币为计数货币的出价金额
+    uint256 bidTime; //出价时间
+    bytes extraParams;
 }
