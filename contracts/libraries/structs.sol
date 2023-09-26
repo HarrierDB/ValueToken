@@ -13,7 +13,6 @@ struct Item {
     string uri; // 数据资产的URI
     address owner; // 指数据的当前所有者
     uint256 timeCreated; // 数据资产创建时间
-    Offer[] offerHistory; // 出价历史
     bytes extraParams;
 }
 

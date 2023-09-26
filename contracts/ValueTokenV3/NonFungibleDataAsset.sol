@@ -11,14 +11,15 @@ contract NonFungibleDataAsset is IDataAsset, ERC721URIStorage, Ownable {
     Counters.Counter private _tokenCounter;
 
     Item[] public items;
+    mapping(uint256 => Offer[]) public offersHistory;
 
-    address public immutable override dataCreator; // 存储数据资产的创建者
+    address public immutable dataCreator; // 存储数据资产的创建者
 
     constructor(string memory name, string memory symbol) ERC721(name, symbol) {
         dataCreator = msg.sender;
     }
 
-    function dataCreator() external view override returns (address) {
+    function getDataCreator() external view override returns (address) {
         return dataCreator;
     }
 
@@ -32,6 +33,16 @@ contract NonFungibleDataAsset is IDataAsset, ERC721URIStorage, Ownable {
         uint256 tokenId = _tokenCounter.current();
         _mint(msg.sender, tokenId);
         _setTokenURI(tokenId, uri);
+
+        // 在此处初始化 offerHistory 数组
+        offersHistory[tokenId].push(Offer({
+            itemId : tokenId,
+            bidder : address(0),
+            bidAmount : 0,
+            bidTime : block.timestamp,
+            extraParams : "0x"
+        }));
+
         items[tokenId] = Item({
             itemId : tokenId,
             dataAsset : address(this),
@@ -39,7 +50,6 @@ contract NonFungibleDataAsset is IDataAsset, ERC721URIStorage, Ownable {
             uri : uri,
             owner : msg.sender,
             timeCreated : block.timestamp,
-            offerHistory : new Offer[](0),
             extraParams: "0x"
         });
 

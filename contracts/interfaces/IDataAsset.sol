@@ -14,7 +14,7 @@ interface IDataAsset {
     // 输出数据工厂地址
 //    function factory() external view returns (address);
     // 输出数据资产所有者
-    function dataCreator() external view returns (address);
+    function getDataCreator() external view returns (address);
 
     // 输出拍卖状态
     // 1： open 正在开放，允许竞标者提交出价
