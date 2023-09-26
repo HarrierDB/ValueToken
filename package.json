@@ -6,12 +6,21 @@
     "hardhat": "^2.17.2"
   },
   "dependencies": {
-    "dotenv": "^16.3.1"
+    "@openzeppelin/contracts": "^4.9.3",
+    "axios": "^1.5.0",
+    "dotenv": "^16.3.1",
+    "fs": "^0.0.1-security"
   },
   "scripts": {
     "compile": "npx hardhat compile",
     "deploy": "npx hardhat run scripts/deploy.js --network devnet",
     "list_information": "npx hardhat run scripts/listInformation.js --network devnet",
-    "bid": "npx hardhat run scripts/bid.js --network devnet"
+    "bid": "npx hardhat run scripts/bid.js --network devnet",
+    "deployv2": "npx hardhat run scripts/deployV2.js --network devnet",
+    "publish_item": "npx hardhat run scripts/publishItem.js --network devnet",
+    "mint_value_token": "npx hardhat run scripts/mintValueToken.js --network devnet",
+    "authorizeAndSet": "npx hardhat run scripts/authorizeAndSet.js --network devnet",
+    "bid_v2": "npx hardhat run scripts/bidV2.js --network devnet",
+    "bid_v2_individual": "npx hardhat run scripts/bidV2Individual.js --network devnet"
   }
 }
