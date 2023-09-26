@@ -7,16 +7,18 @@ interface IDataFactory {
     event BlacklistAdded(address indexed user);
     event BlacklistRemoved(address indexed user);
 
-    function owner() external view returns (address);
-    function setOwner(address _owner) external;
-
-    function getDataAssets(uint256 index) external view returns (address);
-    function allDataAssetsLength() external view returns (uint256);
-    function getDataAssetByDataOwner(address dataOwner, uint256 index) external view returns (address);
-    function allDataAssetsLengthByDataOwner(address dataOwner) external view override returns (uint256);
-
-    function createDataAsset(string memory name, string memory symbol, uint256 datatype, bytes calldata data) external onlyOwner returns (address);
-
+    // 管理函数
     function addToBlacklist(address user) external;
     function removeFromBlacklist(address user) external;
+
+    // 方便根据数据所有者和索引获取数据资产地址和长度
+    function getDataAssets(uint256 index) external view returns (address);
+    function getDataAssetsLength() external view returns (uint256);
+    function getDataAssetByDataOwner(address dataOwner, uint256 index) external view returns (address);
+    function getDataAssetsLengthByDataOwner(address dataOwner) external view returns (uint256);
+
+    // 核心功能
+    function createDataAsset(string memory name, string memory symbol, uint8 datatype, bytes calldata data) external returns (address);
+
+
 }
