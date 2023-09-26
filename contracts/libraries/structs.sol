@@ -12,7 +12,9 @@ struct Item {
     address dataCreator;  // 指数据的最初创建者
     string uri; // 数据资产的URI
     address owner; // 指数据的当前所有者
+    address winner; // 指数据的最终获胜者（即劳动或数据的最终购买者）
     uint256 timeCreated; // 数据资产创建时间
+    uint8 auctionStatus; // 拍卖状态
     bytes extraParams;
 }
 
@@ -35,6 +37,7 @@ struct Condition {
 struct Offer {
     uint256 itemId;
     address bidder; // 出价者
+    address receiver; // 接收者，可与出价者不同
     uint256 bidAmount; // 以出价代币为计数货币的出价金额
     uint256 bidTime; //出价时间
     bytes extraParams;

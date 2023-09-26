@@ -17,12 +17,13 @@ interface IDataAsset {
     function getDataCreator() external view returns (address);
 
     // 输出拍卖状态
+    // 0： pending 等待拍卖开始
     // 1： open 正在开放，允许竞标者提交出价
     // 2： closed 拍卖已经结束，不再接受新的出价
     // 4： Reserve Not Met (未达到保留价)
     // 5： Winner Declared (获胜者宣布)
     // 6： Expired (过期)
-    function auctionStatus(uint256 tokenId) external view returns (uint8);
+    function getAuctionStatus(uint256 tokenId) external view returns (uint8);
 
     // uri包含了数据资产的元数据信息，对于个人价值数据，即时间戳、任务戳、任务相关参数，如交付地点等；
     function createItem(string memory uri) external returns (uint256);

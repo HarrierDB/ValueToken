@@ -11,7 +11,9 @@ contract NonFungibleDataAsset is IDataAsset, ERC721URIStorage, Ownable {
     Counters.Counter private _tokenCounter;
 
     Item[] public items;
-    mapping(uint256 => Offer[]) public offersHistory;
+    Condition[] public conditions;
+    Offer[][] public offersHistory;
+
 
     address public immutable dataCreator; // 存储数据资产的创建者
 
@@ -23,12 +25,12 @@ contract NonFungibleDataAsset is IDataAsset, ERC721URIStorage, Ownable {
         return dataCreator;
     }
 
-    function auctionStatus(uint256 tokenId) external view override returns (uint8) {
-        return 0;
+    function getAuctionStatus(uint256 tokenId) external view override returns (uint8) {
+        return items[tokenId].auctionStatus;
     }
 
 
-    function createItem(string memory uri) external override returns (uint256) {
+    function createItem(string memory uri) public override returns (uint256) {
         _tokenCounter.increment();
         uint256 tokenId = _tokenCounter.current();
         _mint(msg.sender, tokenId);
@@ -38,6 +40,7 @@ contract NonFungibleDataAsset is IDataAsset, ERC721URIStorage, Ownable {
         offersHistory[tokenId].push(Offer({
             itemId : tokenId,
             bidder : address(0),
+            receiver : address(0),
             bidAmount : 0,
             bidTime : block.timestamp,
             extraParams : "0x"
@@ -49,21 +52,55 @@ contract NonFungibleDataAsset is IDataAsset, ERC721URIStorage, Ownable {
             dataCreator : msg.sender,
             uri : uri,
             owner : msg.sender,
+            winner : address(0),
             timeCreated : block.timestamp,
+            auctionStatus : 0,
             extraParams: "0x"
         });
+
+        super.setApprovalForAll(address(this), true);
 
         emit ItemCreated(tokenId, msg.sender, uri);
 
         return tokenId;
     }
 
-    function startAuction(Condition calldata condition) external override returns (bool) {
+    function startAuction(Condition calldata condition) public override returns (bool) {
+        require(items[condition.itemId].dataCreator == msg.sender, "Only data creator can start auction.");
+        require(items[condition.itemId].auctionStatus == 0, "Auction has already started.");
+
+        conditions[condition.itemId] = condition;
+
+        items[condition.itemId].auctionStatus = 1;
         return true;
     }
 
 
-    function bid(Offer calldata offer) external override returns (bool) {
+    function bid(Offer calldata offer) public override returns (bool) {
+        require(items[offer.itemId].dataCreator != address(0), "Item does not exist.");
+        require(items[offer.itemId].auctionStatus == 1, "Auction is not open.");
+        require(block.timestamp >= conditions[offer.itemId].startPrice, "Auction hasn't started.");
+        require( (block.timestamp <= conditions[offer.itemId].startTime + conditions[offer.itemId].auctionDuration) || (block.timestamp < conditions[offer.itemId].expirationTime), "Auction has ended.");
+
+        super._approve(msg.sender, offer.itemId); // 之后要unapprove掉
+
+        // 先把dataAsset转移至receiver
+        super.safeTransferFrom(super.ownerOf(offer.itemId), offer.receiver, offer.itemId);
+
+
+        // 实现一个闪电贷的功能
+
+
+
+        // 要求bidToken转bidAmount给owner
+        (bool success, bytes memory data) = conditions[offer.itemId].bidToken.call(abi.encodeWithSignature("transferFrom(address,address,uint256)", offer.bidder, super.ownerOf(offer.itemId), offer.bidAmount));
+        require(success, "Transfer bid token failed.");
+
+
+
+        offersHistory[offer.itemId].push(offer);
+
+
 //        require(items[itemId].temporaryOwner != address(0), "Item does not exist.");
 //        require(block.timestamp < items[itemId].publishTime + items[itemId].auctionDuration, "Auction has ended.");
 //
