@@ -34,11 +34,12 @@ struct Condition {
 
 
 // 出价条件
+// todo: batch bid and itemIds
 struct Offer {
     uint256 itemId;
     address bidder; // 出价者
     address receiver; // 接收者，可与出价者不同
-    uint256 bidAmount; // 以出价代币为计数货币的出价金额
+    uint256 bidAmount; // 以出价代币为计数货币的出价总金额
     uint256 bidTime; //出价时间
     bytes extraParams;
 }

@@ -5,8 +5,11 @@ import "../libraries/structs.sol";
 
 interface IBidPool {
 
-    function bid(Offer memory offer) external returns (bool);
+    function initialize(Condition calldata condition) external;
 
+    function updateCondition(Condition calldata newCondition) external;
 
+    // 发起出价
+    function bid(Offer calldata offer) external returns (bool);
 
 }

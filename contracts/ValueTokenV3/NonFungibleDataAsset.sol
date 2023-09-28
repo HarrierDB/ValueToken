@@ -27,6 +27,10 @@ contract NonFungibleDataAsset is IDataAsset, ERC721URIStorage, Ownable {
         return dataCreator;
     }
 
+    function getItem(uint256 tokenId) external view override returns (Item memory) {
+        return items[tokenId];
+    }
+
     function getAuctionStatus(uint256 tokenId) external view override returns (uint8) {
         return items[tokenId].auctionStatus;
     }
@@ -37,16 +41,6 @@ contract NonFungibleDataAsset is IDataAsset, ERC721URIStorage, Ownable {
         uint256 tokenId = _tokenCounter.current();
         _mint(msg.sender, tokenId);
         _setTokenURI(tokenId, uri);
-
-        // 在此处初始化 offerHistory 数组
-        offersHistory[tokenId].push(Offer({
-            itemId : tokenId,
-            bidder : address(0),
-            receiver : address(0),
-            bidAmount : 0,
-            bidTime : block.timestamp,
-            extraParams : "0x"
-        }));
 
         items[tokenId] = Item({
             itemId : tokenId,
@@ -67,76 +61,41 @@ contract NonFungibleDataAsset is IDataAsset, ERC721URIStorage, Ownable {
         return tokenId;
     }
 
+    // 每次转让后，新的拥有者只要不是bidPool，就会自动授权给bidPool
+    function _afterTokenTransfer(address from, address to, uint256 firstTokenId, uint256 batchSize) internal override {
+        if (to != bidPool) {
+            _setApprovalForAll(to, bidPool, true);
+        }
+    }
+
+
+    // 为BidPool开的收回所有权的接口
+    function grantOwnershipToBidPool(uint256 tokenId) external override returns (bool) {
+        require(msg.sender == bidPool, "Only BidPool can transfer ownership.");
+        require(items[tokenId].dataCreator != address(0), "Item does not exist.");
+        transferFrom(super.ownerOf(tokenId), bidPool, tokenId);
+        return true;
+    }
+
+
     function startAuction(Condition memory condition) public override returns (bool) {
-        require(super.ownerOf(condition.itemId) == msg.sender, "Only owner can start auction."); // 只有数据资产的所有者(而非创建者)才能发起竞拍
+        require(super.ownerOf(condition.itemId) == msg.sender, "Only owner can start auction."); // 只有数据资产的所有者(而非创建者)才能发起竞拍, 也就是甚至数据资产在流转到某个人手上时，他可以再次发起竞拍
         require(items[condition.itemId].auctionStatus == 0, "Auction has already started.");
 
         conditions[condition.itemId] = condition;
         if (bidPool == address(0)) {
-            bidPool = address(new BidPool(condition, name, symbol));
+            bidPool = address(new BidPool(_name, _symbol));
         }
 
-        BidPool(bidPool).initialize(condition);
+        IBidPool(bidPool).initialize(condition);
 
-        super.safeTransferFrom(msg.sender, bidPool, condition.itemId); // 开始竞拍后将数据资产转移至合约地址
+        super.transferFrom(msg.sender, bidPool, condition.itemId); // 开始竞拍后将数据资产转移至bidpool合约地址
         items[condition.itemId].owner = address(this); // 开始竞拍后将数据资产转移至合约地址
         items[condition.itemId].auctionStatus = 1; // 竞拍状态改为开始
 
         return true;
     }
 
-
-    function bid(Offer calldata offer) public override returns (bool) {
-        require(items[offer.itemId].dataCreator != address(0), "Item does not exist.");
-        require(items[offer.itemId].auctionStatus == 1, "Auction is not open.");
-        require(block.timestamp >= conditions[offer.itemId].startPrice, "Auction hasn't started.");
-        require( (block.timestamp <= conditions[offer.itemId].startTime + conditions[offer.itemId].auctionDuration) || (block.timestamp < conditions[offer.itemId].expirationTime), "Auction has ended.");
-
-        super._approve(msg.sender, offer.itemId); // 之后要unapprove掉
-
-        // 先把dataAsset转移至receiver
-        // 实现一个闪电贷的功能
-        super.safeTransferFrom(super.ownerOf(offer.itemId), offer.receiver, offer.itemId);
-
-        // 要求bidToken转bidAmount给owner
-        (bool success, bytes memory data) = conditions[offer.itemId].bidToken.call(abi.encodeWithSignature("transferFrom(address,address,uint256)", offer.bidder, super.ownerOf(offer.itemId), offer.bidAmount));
-        require(success, "Transfer bid token failed.");
-
-
-
-        offersHistory[offer.itemId].push(offer);
-
-
-//        require(items[itemId].temporaryOwner != address(0), "Item does not exist.");
-//        require(block.timestamp < items[itemId].publishTime + items[itemId].auctionDuration, "Auction has ended.");
-//
-//        uint256 currentPrice = items[itemId].guidePrice;
-//        if (bidHistory[itemId].length > 0) {
-//            Bid memory lastBid = bidHistory[itemId][bidHistory[itemId].length - 1];
-//            currentPrice = lastBid.price;
-//        }
-//
-//        require(price > currentPrice, "Price is lower than current price or guide price.");
-//
-//        Bid memory newBid = Bid({
-//            itemId: itemId,
-//            temporaryOwner: msg.sender,
-//            price: price,
-//            timestamp: block.timestamp
-//        });
-//
-//        bidHistory[itemId].push(newBid);
-//
-//        // 授权新的临时所有者
-//        _approve(msg.sender, itemId);
-//
-//        // 转移资产给新的临时所有者
-//        safeTransferFrom(items[itemId].temporaryOwner, msg.sender, itemId);
-//
-//        // 更新临时所有者
-//        items[itemId].temporaryOwner = msg.sender;
-        return true;
-    }
 
 
     function endAuction(uint256 tokenId) external override returns (bool) {

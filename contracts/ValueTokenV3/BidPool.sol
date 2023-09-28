@@ -2,74 +2,58 @@
 pragma solidity ^0.8.0;
 
 import "../interfaces/IBidPool.sol";
+import "../interfaces/IDataAsset.sol";
+import "../interfaces/IBidPoolCallee.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract BidPool is IBidPool, ERC20, Ownable {
+    address public dataAsset;
     mapping(uint256 => Condition) public conditions; // itemId to condition
     Offer[][] public offersHistory;
+    mapping(uint256 => Offer) public currentOffer; // itemId to offer
 
     constructor(string memory name, string memory symbol) ERC20(name, symbol) {
     }
 
-    function initialize(Condition calldata condition) public {
+    function initialize(Condition calldata condition) public override {
         conditions[condition.itemId] = condition;
     }
 
-    function bid(Offer memory offer) public override returns (bool) {
-//        require(items[offer.itemId].dataCreator != address(0), "Item does not exist.");
-//        require(items[offer.itemId].auctionStatus == 1, "Auction is not open.");
+    function bid(Offer calldata offer) public override returns (bool) {
+        Item memory item = IDataAsset(dataAsset).getItem(offer.itemId);
+        require(item.dataCreator != address(0), "Item does not exist.");
+        require(item.auctionStatus == 1, "Auction is not open.");
+
         require(block.timestamp >= conditions[offer.itemId].startPrice, "Auction hasn't started.");
         require( (block.timestamp <= conditions[offer.itemId].startTime + conditions[offer.itemId].auctionDuration) || (block.timestamp < conditions[offer.itemId].expirationTime), "Auction has ended.");
 
-//        super._approve(msg.sender, offer.itemId); // 之后要unapprove掉
+        offersHistory[offer.itemId].push(offer); // 不论是否是最高价，都记录到历史出价中
 
-        // 先把dataAsset转移至receiver
-        // 实现一个闪电贷的功能
-//        super.safeTransferFrom(super.ownerOf(offer.itemId), offer.receiver, offer.itemId);
+        // currentOffer 记录当前最高价
+        // 如果是最高价，先把dataAsset转移至receiver, 给闪电贷留空间
+        // 有一个问题，就是在竞拍过程中，是否需要禁止除竞拍转让以外的其他转让？
+        // 如果不禁止，那么在竞拍过程中，dataAsset的owner可能会发生变化，这样的话，bidPool可能没法把dataAsset转移回来
+        // 这样我设计了一个新的接口，grantOwnershipToBidPool，用于在竞拍过程中，把dataAsset的owner转移到bidPool
+        // 同时我设计了一个_afterTokenTransfer函数，用于在每次转让后，都会调用，使得bidpool永远是当前owner的approveForAll的operator
+        require(offer.bidAmount > currentOffer[offer.itemId].bidAmount, "Bid amount is not higher than current offer.");
 
-        // 要求bidToken转bidAmount给owner
-        (bool success, bytes memory data) = conditions[offer.itemId].bidToken.call(abi.encodeWithSignature("transferFrom(address,address,uint256)", offer.bidder, super.ownerOf(offer.itemId), offer.bidAmount));
+        currentOffer[offer.itemId] = offer;
+        // 转让成立的前提是，在每次转让后，都会调用_afterTokenTransfer函数，使得bidpool永远是当前owner的approveForAll的operator
+        IERC721(dataAsset).transferFrom(IERC721(dataAsset).ownerOf(offer.itemId), offer.receiver, offer.itemId);
+        if (offer.extraParams.length > 0) {
+            IBidPoolCallee(offer.receiver).bidPoolCall(offer);
+        }
+        // 要求bidToken转bidAmount给bidpool
+        (bool success, bytes memory data) = conditions[offer.itemId].bidToken.call(abi.encodeWithSignature("transferFrom(address,address,uint256)", offer.bidder, address(this), offer.bidAmount));
         require(success, "Transfer bid token failed.");
 
-
-
-        offersHistory[offer.itemId].push(offer);
-
-
-//        require(items[itemId].temporaryOwner != address(0), "Item does not exist.");
-//        require(block.timestamp < items[itemId].publishTime + items[itemId].auctionDuration, "Auction has ended.");
-//
-//        uint256 currentPrice = items[itemId].guidePrice;
-//        if (bidHistory[itemId].length > 0) {
-//            Bid memory lastBid = bidHistory[itemId][bidHistory[itemId].length - 1];
-//            currentPrice = lastBid.price;
-//        }
-//
-//        require(price > currentPrice, "Price is lower than current price or guide price.");
-//
-//        Bid memory newBid = Bid({
-//            itemId: itemId,
-//            temporaryOwner: msg.sender,
-//            price: price,
-//            timestamp: block.timestamp
-//        });
-//
-//        bidHistory[itemId].push(newBid);
-//
-//        // 授权新的临时所有者
-//        _approve(msg.sender, itemId);
-//
-//        // 转移资产给新的临时所有者
-//        safeTransferFrom(items[itemId].temporaryOwner, msg.sender, itemId);
-//
-//        // 更新临时所有者
-//        items[itemId].temporaryOwner = msg.sender;
         return true;
     }
 
-    function updateCondition(Condition calldata newCondition) public {
-        conditions[condition.itemId] = condition;
+    function updateCondition(Condition calldata newCondition) public override {
+        conditions[newCondition.itemId] = newCondition;
     }
 
 }
