@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/IDataAsset.sol";
+import "./BidPool.sol";
 
 contract NonFungibleDataAsset is IDataAsset, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
@@ -16,6 +17,7 @@ contract NonFungibleDataAsset is IDataAsset, ERC721URIStorage, Ownable {
 
 
     address public immutable dataCreator; // 存储数据资产的创建者
+    address public bidPool; // 存储竞拍池地址
 
     constructor(string memory name, string memory symbol) ERC721(name, symbol) {
         dataCreator = msg.sender;
@@ -65,13 +67,18 @@ contract NonFungibleDataAsset is IDataAsset, ERC721URIStorage, Ownable {
         return tokenId;
     }
 
-    function startAuction(Condition calldata condition) public override returns (bool) {
+    function startAuction(Condition memory condition) public override returns (bool) {
         require(super.ownerOf(condition.itemId) == msg.sender, "Only owner can start auction."); // 只有数据资产的所有者(而非创建者)才能发起竞拍
         require(items[condition.itemId].auctionStatus == 0, "Auction has already started.");
 
         conditions[condition.itemId] = condition;
+        if (bidPool == address(0)) {
+            bidPool = address(new BidPool(condition, name, symbol));
+        }
 
-        super.safeTransferFrom(msg.sender, address(this), condition.itemId); // 开始竞拍后将数据资产转移至合约地址
+        BidPool(bidPool).initialize(condition);
+
+        super.safeTransferFrom(msg.sender, bidPool, condition.itemId); // 开始竞拍后将数据资产转移至合约地址
         items[condition.itemId].owner = address(this); // 开始竞拍后将数据资产转移至合约地址
         items[condition.itemId].auctionStatus = 1; // 竞拍状态改为开始
 
@@ -88,12 +95,8 @@ contract NonFungibleDataAsset is IDataAsset, ERC721URIStorage, Ownable {
         super._approve(msg.sender, offer.itemId); // 之后要unapprove掉
 
         // 先把dataAsset转移至receiver
-        super.safeTransferFrom(super.ownerOf(offer.itemId), offer.receiver, offer.itemId);
-
-
         // 实现一个闪电贷的功能
-
-
+        super.safeTransferFrom(super.ownerOf(offer.itemId), offer.receiver, offer.itemId);
 
         // 要求bidToken转bidAmount给owner
         (bool success, bytes memory data) = conditions[offer.itemId].bidToken.call(abi.encodeWithSignature("transferFrom(address,address,uint256)", offer.bidder, super.ownerOf(offer.itemId), offer.bidAmount));
