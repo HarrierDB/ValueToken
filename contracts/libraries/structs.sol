@@ -43,3 +43,8 @@ struct Offer {
     uint256 bidTime; //出价时间
     bytes extraParams;
 }
+
+
+Offer[][] OffersHistory; // 这儿咋写
+struct offersHistory Offer[][];
+

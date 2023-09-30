@@ -4,6 +4,8 @@ pragma solidity ^0.8.0;
 import "../interfaces/IBidPool.sol";
 import "../interfaces/IDataAsset.sol";
 import "../interfaces/IBidPoolCallee.sol";
+import "../interfaces/IInfocode.sol";
+import "../interfaces/IValuecode";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -11,8 +13,12 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract BidPool is IBidPool, ERC20, Ownable {
     address public dataAsset;
     mapping(uint256 => Condition) public conditions; // itemId to condition
-    Offer[][] public offersHistory;
     mapping(uint256 => Offer) public currentOffer; // itemId to offer
+
+    Offer[][] public offersHistory;
+    mapping(uint256 => mapping (address => uint256)) public rewardHistory; // itemId to (bidder to rewardAmount);
+
+    IInfocode public infocode;
 
     constructor(string memory name, string memory symbol) ERC20(name, symbol) {
     }
@@ -51,6 +57,39 @@ contract BidPool is IBidPool, ERC20, Ownable {
 
         return true;
     }
+
+    function mintInfocode(uint256 amount) internal returns (bool){
+        infocode.mint(amount);
+        return true;
+    }
+
+    function distributeRewards(mapping (address => uint256) rewardHistory) internal returns (bool) {
+        uint256 memory i;
+        uint256 memory j;
+        for (i==0; i<rewardHistory.length; i++) {
+            for (j==0; j<rewardHistory[i].length; j++) {
+                mintInfocode(rewardHistory[i][j]);
+            }
+        }
+
+        return true;
+    }
+
+    function calculateRewards(Offer[][] offersHistory) internal returns (mapping (address => uint256)) {
+        uint256 memory i;
+        uint256 memory j;
+        for (i==0; i<offersHistory.length; i++) {
+            for (j==0; j<offersHistory[i].length; j++) {
+                if (j ==0) {
+                    rewardHistory[i][j] == 0;
+                } else {
+                    rewardHistory[i][j] == offersHistory[i][j].bidAmount - offersHistory[i][j-1].bidAmount;
+                }
+            }
+        }
+        return true;
+    }
+
 
     function updateCondition(Condition calldata newCondition) public override {
         conditions[newCondition.itemId] = newCondition;
