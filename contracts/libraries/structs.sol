@@ -45,6 +45,3 @@ struct Offer {
 }
 
 
-Offer[][] OffersHistory; // 这儿咋写
-struct offersHistory Offer[][];
-

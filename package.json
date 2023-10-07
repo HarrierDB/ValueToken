@@ -22,6 +22,6 @@
     "authorizeAndSet": "npx hardhat run scripts/authorizeAndSet.js --network devnet",
     "bid_v2": "npx hardhat run scripts/bidV2.js --network devnet",
     "bid_v2_individual": "npx hardhat run scripts/bidV2Individual.js --network devnet",
-    "deploy_v3": "npx hardhat run scripts/ValuecodeV3/deployv3.js --network devnet"
+    "deploy_v3": "npx hardhat run scripts/deployv3.js --network devnet"
   }
 }

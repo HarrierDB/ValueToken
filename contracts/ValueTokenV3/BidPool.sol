@@ -5,7 +5,7 @@ import "../interfaces/IBidPool.sol";
 import "../interfaces/IDataAsset.sol";
 import "../interfaces/IBidPoolCallee.sol";
 import "../interfaces/IInfocode.sol";
-import "../interfaces/IValuecode";
+import "../interfaces/IValuecode.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -13,18 +13,23 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract BidPool is IBidPool, ERC20, Ownable {
     address public dataAsset;
     mapping(uint256 => Condition) public conditions; // itemId to condition
-    mapping(uint256 => Offer) public currentOffer; // itemId to offer
+    mapping(uint256 => uint8) public auctionStatus; // itemdId to auctionStatus
 
-    Offer[][] public offersHistory;
-    mapping(uint256 => mapping (address => uint256)) public rewardHistory; // itemId to (bidder to rewardAmount);
+    mapping(uint256 => Offer[]) public offersHistory; // itemId to offer list
+
+    mapping(uint256 => Offer) public currentOffer; // itemId to current offer
+
+    mapping(uint256 => mapping (address => uint256)) public rewardList; // itemId to (bidder to rewardAmount);
 
     IInfocode public infocode;
 
-    constructor(string memory name, string memory symbol) ERC20(name, symbol) {
+    constructor(string memory name, string memory symbol, address _infocode) ERC20(name, symbol) {
+        infocode = IInfocode(_infocode);
     }
 
     function initialize(Condition calldata condition) public override {
         conditions[condition.itemId] = condition;
+        require(auctionStatus[condition.itemId] == 0, "Auction isn't in a status of pending.");
     }
 
     function bid(Offer calldata offer) public override returns (bool) {
@@ -58,37 +63,39 @@ contract BidPool is IBidPool, ERC20, Ownable {
         return true;
     }
 
-    function mintInfocode(uint256 amount) internal returns (bool){
-        infocode.mint(amount);
-        return true;
-    }
+//    function mintInfocode(uint256 amount) internal returns (bool) {
+//        infocode.mint(amount);
+//        return true;
+//    }
 
-    function distributeRewards(mapping (address => uint256) rewardHistory) internal returns (bool) {
-        uint256 memory i;
-        uint256 memory j;
-        for (i==0; i<rewardHistory.length; i++) {
-            for (j==0; j<rewardHistory[i].length; j++) {
-                mintInfocode(rewardHistory[i][j]);
-            }
-        }
+//    function distributeRewards(mapping (address => uint256) rewardHistory) public returns (mapping(uint256 => uint256)) {
+//        uint256 totalRewards;
+//        uint256 memory i;
+//        uint256 memory j;
+//        for (i==0; i< rewardList.length; i++) {
+//            for (j==0; j< rewardList[i].length; j++) {
+//                mintInfocode(rewardList[i][j]);
+//                totalRewards += totalRewards;
+//            }
+//        }
+//
+//        return true;
+//    }
 
-        return true;
-    }
-
-    function calculateRewards(Offer[][] offersHistory) internal returns (mapping (address => uint256)) {
-        uint256 memory i;
-        uint256 memory j;
-        for (i==0; i<offersHistory.length; i++) {
-            for (j==0; j<offersHistory[i].length; j++) {
-                if (j ==0) {
-                    rewardHistory[i][j] == 0;
-                } else {
-                    rewardHistory[i][j] == offersHistory[i][j].bidAmount - offersHistory[i][j-1].bidAmount;
-                }
-            }
-        }
-        return true;
-    }
+//    function calculateRewards(Offer[][] offersHistory) internal returns (bool) {
+//        uint256 memory i;
+//        uint256 memory j;
+//        for (i==0; i<offersHistory.length; i++) {
+//            for (j==0; j<offersHistory[i].length; j++) {
+//                if (j ==0) {
+//                    rewardList[i][j] == 0;
+//                } else {
+//                    rewardList[i][j] == offersHistory[i][j].bidAmount - offersHistory[i][j-1].bidAmount;
+//                }
+//            }
+//        }
+//        return true;
+//    }
 
 
     function updateCondition(Condition calldata newCondition) public override {

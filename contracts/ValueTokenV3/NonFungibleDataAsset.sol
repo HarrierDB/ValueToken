@@ -80,11 +80,11 @@ contract NonFungibleDataAsset is IDataAsset, ERC721URIStorage, Ownable {
 
     function startAuction(Condition memory condition) public override returns (bool) {
         require(super.ownerOf(condition.itemId) == msg.sender, "Only owner can start auction."); // 只有数据资产的所有者(而非创建者)才能发起竞拍, 也就是甚至数据资产在流转到某个人手上时，他可以再次发起竞拍
-        require(items[condition.itemId].auctionStatus == 0, "Auction has already started.");
+        require(items[condition.itemId].auctionStatus == 0, "Auction isn't in a status of pending.");
 
         conditions[condition.itemId] = condition;
         if (bidPool == address(0)) {
-            bidPool = address(new BidPool(_name, _symbol));
+            bidPool = address(new BidPool(_name, _symbol, address(0))); // todo
         }
 
         IBidPool(bidPool).initialize(condition);
@@ -97,8 +97,11 @@ contract NonFungibleDataAsset is IDataAsset, ERC721URIStorage, Ownable {
     }
 
 
-
-    function endAuction(uint256 tokenId) external override returns (bool) {
+    function endAuction(Condition memory condition) public override returns (bool) {
+        require(super.ownerOf(condition.itemId) == msg.sender, "Only owner can start auction."); // 只有数据资产的所有者(而非创建者)才能发起竞拍, 也就是甚至数据资产在流转到某个人手上时，他可以再次发起竞拍
+        // openness 如何在time expired之后自动改状态
+        require(items[condition.itemId].auctionStatus == 1, "Auction isn't in a status of openness.");
+//        IBidPool(bidPool).distributeRewards(); //todo
         return true;
     }
 

@@ -36,5 +36,5 @@ interface IDataAsset {
     function startAuction(Condition calldata condition) external returns (bool);
 
     // 结束竞拍
-    function endAuction(uint256 tokenId) external returns (bool);
+    function endAuction(Condition memory condition) external returns (bool);
 }

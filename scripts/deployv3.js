@@ -24,27 +24,28 @@ function replaceOrAddEnvVariable(variableName, variableValue) {
 
 
 async function main() {
-    const DataFactory = await hre.ethers.getContractFactory("DataFactory");
-    const dataFactory = await DataFactory.deploy();
+    const [deployer] = await hre.ethers.getSigners();
 
-    await dataFactory.deployed();
-
-    console.log(
-        `DataFactory deployed to ${dataFactory.address}`
-    );
-
-    // const ValueTokenV2 = await hre.ethers.getContractFactory("ValueTokenV2");
-    // const valueTokenV2 = await ValueTokenV2.deploy('ValueTokenV2','VALUEV2');
+    const DataAssetFactory = await ethers.getContractFactory("DataAssetFactory");
+    console.log("get contract right.")
+    // 估算 gas
+    // const estimatedGas = await deployer.estimateGas(await DataAssetFactory.deploy("DataFactory","DF"));
     //
-    // await valueTokenV2.deployed();
+    // console.log(`Estimated Gas: ${estimatedGas.toString()}`);
+    // 部署
+    const dataFactory = await DataAssetFactory.deploy("DataFactory","DataFactory");
+    console.log("get deployed right.")
+    //
+    // await dataFactory.deployed();
     //
     // console.log(
-    //     `Value token deployed to ${valueTokenV2.address}`
+    //     `DataFactory deployed to ${dataFactory.address}`
     // );
-
-    replaceOrAddEnvVariable('DATA_FACTORY_ADDRESS', dataFactory.address);
-    // replaceOrAddEnvVariable('VALUE_TOKEN_V2_ADDRESS', valueTokenV2.address);
-    fs.writeFileSync('.env', envContent, 'utf8');
+    //
+    //
+    // replaceOrAddEnvVariable('DATA_FACTORY_ADDRESS', dataFactory.address);
+    // // replaceOrAddEnvVariable('VALUE_TOKEN_V2_ADDRESS', valueTokenV2.address);
+    // fs.writeFileSync('.env', envContent, 'utf8');
 
 
     await hre.tenderly.persistArtifacts({
