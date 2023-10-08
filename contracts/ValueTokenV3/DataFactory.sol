@@ -6,7 +6,8 @@ import "@openzeppelin/contracts/access/Ownable.sol"; // 导入 Ownable 合约
 import "../interfaces/IDataFactory.sol";
 import "./NonFungibleDataAsset.sol"; // 导入非同质化数据资产合约
 import "./MultiDuplicateNonFungibleDataAssetContract.sol"; //导入多副本非同质化数据资产合约
-import "./SemiFungibleDataAsset.sol"; // 导入半同质化数据资产合约
+import "./SemiFungibleDataAsset.sol";
+import "./PersonalValueDataAsset.sol"; // 导入半同质化数据资产合约
 
 contract DataFactory is IDataFactory, Ownable {
     address public treasury;
@@ -79,13 +80,15 @@ contract DataFactory is IDataFactory, Ownable {
         // 数据类型为2, 创建商品数据
         if (dataType == 0) {
             dataAsset = createPersonalValueDataAsset(name, symbol, dataStandard);
-        } else if (dataType == 1) {
-            dataAsset = createPersonalDataAsset(name, symbol, dataStandard);
-        } else if (dataType == 2) {
-            dataAsset = createCommodity(name, symbol, dataStandard);
-        } else {
-            revert("Invalid datatype");
         }
+        // todo
+//        else if (dataType == 1) {
+//            dataAsset = createPersonalDataAsset(name, symbol, dataStandard);
+//        } else if (dataType == 2) {
+//            dataAsset = createCommodity(name, symbol, dataStandard);
+//        } else {
+//            revert("Invalid datatype");
+//        }
 
         // 将数据资产地址存储在deployedDataAssets数组中
         deployedDataAssets.push(dataAsset);
@@ -108,7 +111,7 @@ contract DataFactory is IDataFactory, Ownable {
         address personalValueDataAsset;
 
         if (dataStandard == 721) {
-            personalValueDataAsset = address(new NonFungibleDataAsset(name, symbol));
+            personalValueDataAsset = address(new PersonalValueDataAsset(name, symbol));
         } else if (dataStandard == 1155) {
             personalValueDataAsset = address(new MultiDuplicateNonFungibleDataAssetContract(name, symbol));
         } else if (dataStandard == 3525) {
@@ -123,28 +126,28 @@ contract DataFactory is IDataFactory, Ownable {
 
     // 适用于个人基础信息、个人收入、个人支出、个人投资数据
     // 只接受721标准
-    function createPersonalDataAsset(string memory name, string memory symbol, uint16 dataStandard) internal returns (address) {
-        require(dataStandard == 721, "Invalid data standard");
-
-        address personalDataAsset;
-
-        personalDataAsset = address(new NonFungibleDataAsset(name, symbol));
-        deployedPersonalDataAssets.push(personalDataAsset);
-
-        return personalDataAsset;
-    }
-
-    // 适用于商品数据
-    // 只接受721标准
-    function createCommodity(string memory name, string memory symbol, uint16 dataStandard) internal returns (address) {
-        require(dataStandard == 721, "Invalid data standard");
-
-        address commodity;
-
-        commodity = address(new NonFungibleDataAsset(name, symbol));
-        deployedCommodities.push(commodity);
-
-        return commodity;
-    }
+//    function createPersonalDataAsset(string memory name, string memory symbol, uint16 dataStandard) internal returns (address) {
+//        require(dataStandard == 721, "Invalid data standard");
+//
+//        address personalDataAsset;
+//
+//        personalDataAsset = address(new NonFungibleDataAsset(name, symbol));
+//        deployedPersonalDataAssets.push(personalDataAsset);
+//
+//        return personalDataAsset;
+//    }
+//
+//    // 适用于商品数据
+//    // 只接受721标准
+//    function createCommodity(string memory name, string memory symbol, uint16 dataStandard) internal returns (address) {
+//        require(dataStandard == 721, "Invalid data standard");
+//
+//        address commodity;
+//
+//        commodity = address(new NonFungibleDataAsset(name, symbol));
+//        deployedCommodities.push(commodity);
+//
+//        return commodity;
+//    }
 
 }

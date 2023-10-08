@@ -15,24 +15,33 @@ async function main() {
     const bidPoolAddress = process.env.BID_POOL_ADDRESS;
     const BidPool = await hre.ethers.getContractFactory("BidPool");
 
-    const bidPool = hre.ethers.Contract(bidPoolAddress, BidPool.interface);
+    const bidPool = new hre.ethers.Contract(bidPoolAddress, BidPool.interface);
 
     let itemId = 0;
 
+    const commenceTimestamp = Math.floor(Date.now()/1000+3600);
+    const auctionDuration = 3*3600;
+    const expirationTime = commenceTimestamp + auctionDuration;
+
     const condition = {
-        startTime: Date.now(), // 当前时间戳
+        commenceTimestamp: commenceTimestamp, // 一小时以后开始竞拍
         startPrice: ethers.utils.parseUnits("100", 18),
         reservePrice: ethers.utils.parseUnits("50", 18),
         bidToken: "0x3c0b6110994DCcCaafEE985D020f00840E57b1ef", // 你的代币地址
-        auctionDuration: 86400000,
-        expirationTime: Date.now() + 86400000,
+        auctionDuration: auctionDuration, //竞拍持续3个小时
+        expirationTimestamp: expirationTime,
         extraParams: "0x" // 你的额外参数
     }
 
-    const initializeTx = bidPool.initialize(itemId, condition);
+    const initializeTx = await bidPool.connect(accounts[0]).initialize(itemId, condition);
+    console.log("6. Bid Pool is successfully initialized.");
 
-    const ConditionGot = bidPool.getConditionByItemId(itemId);
-    console.log('We got a condition', ConditionGot);
+    async function fetchCondition() {
+        const ConditionGot = await bidPool.getConditionByItemId(itemId);
+        console.log(`BID_POOL_ADDRESS ${bidPoolAddress} id=${itemId} successfully set bidding condition= ${ConditionGot}.`);
+    }
+
+    await fetchCondition();
 
     // for (let i = 0; i < biddingAccounts.length; i++) {
     //     const user = biddingAccounts[i];

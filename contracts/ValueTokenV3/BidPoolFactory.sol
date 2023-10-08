@@ -12,11 +12,7 @@ contract BidPoolFactory is IBidPoolFactory {
     mapping(address => address) private dataAssetToBidPool;
     Condition[] public conditions;
 
-
-
-
     event BidPoolCreated(address indexed bidPoolAddress, address indexed dataAssetAddress, address creator, uint256 timestamp);
-
 
     // 构造函数
     constructor(address _treasury) {
@@ -41,8 +37,8 @@ contract BidPoolFactory is IBidPoolFactory {
     }
 
 
-    function createBidPool(address dataAsset, string memory name, string memory symbol) public override returns (address) {
-        BidPool bidPool = new BidPool(name, symbol);
+    function createBidPool(string memory name, string memory symbol, address dataAsset, uint256 basicReward) public override returns (address) {
+        BidPool bidPool = new BidPool(name, symbol, dataAsset, basicReward);
         deployedBidPools.push(address(bidPool));
 
         // 将新创建的 BidPool 和相应的数据资产地址关联起来

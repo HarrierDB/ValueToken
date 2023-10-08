@@ -13,11 +13,9 @@ interface IMultiDuplicateNonFungibleDataAssetContract {
 
     // 输出数据工厂地址
 //    function factory() external view returns (address);
-    // 输出数据资产所有者
-    function getDataCreator() external view returns (address);
 
     // 输出item基础信息
-    function getItem(uint256 tokenId) external view returns (Item memory);
+//    function getItem(uint256 tokenId) external view returns (Item memory);
 
     // 输出拍卖状态
     // 0： pending 等待拍卖开始
@@ -26,15 +24,15 @@ interface IMultiDuplicateNonFungibleDataAssetContract {
     // 4： Reserve Not Met (未达到保留价)
     // 5： Winner Declared (获胜者宣布)
     // 6： Expired (过期)
-    function getAuctionStatus(uint256 tokenId) external view returns (uint8);
+//    function getAuctionStatus(uint256 tokenId) external view returns (uint8);
 
     // uri包含了数据资产的元数据信息，对于个人价值数据，即时间戳、任务戳、任务相关参数，如交付地点等；
     function createItem(string memory uri) external returns (uint256);
     // 为BidPool开的转让接口
     function grantOwnershipToBidPool(uint256 tokenId) external returns (bool);
     // 发起竞拍
-    function startAuction(Condition calldata condition) external returns (bool);
+//    function startAuction(Condition calldata condition) external returns (bool);
 
     // 结束竞拍
-    function endAuction(Condition memory condition) external returns (bool);
+//    function endAuction(Condition memory condition) external returns (bool);
 }

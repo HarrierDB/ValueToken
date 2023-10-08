@@ -14,10 +14,9 @@ interface INonFungibleDataAsset{
     // 输出数据工厂地址
 //    function factory() external view returns (address);
     // 输出数据资产所有者
-    function getDataCreator() external view returns (address);
 
     // 输出item基础信息
-    function getItem(uint256 tokenId) external view returns (Item memory);
+//    function getItem(uint256 tokenId) external view returns (Item memory);
 
     // 输出拍卖状态
     // 0： pending 等待拍卖开始

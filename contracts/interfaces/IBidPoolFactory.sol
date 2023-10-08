@@ -10,5 +10,5 @@ interface IBidPoolFactory {
 
     function getBidPoolByDataAsset(address dataAsset) external view  returns (address);
 
-    function createBidPool(address dataAsset, string memory name, string memory symbol) external returns (address);
+    function createBidPool(string memory name, string memory symbol, address dataAsset, uint256 basicReward) external returns (address);
 }

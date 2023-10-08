@@ -3,8 +3,7 @@ pragma solidity ^0.8.0;
 
 interface IInfocode {
     // 增发
-    function mint(uint256) external returns (bool);
-
+    function mint(address account, uint256 amount) external;
     // 转换成Valuecode
 //    function swapIntoValuecode() external returns (bool);
 //

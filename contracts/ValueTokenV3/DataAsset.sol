@@ -7,24 +7,18 @@ import "../interfaces/IDataAsset.sol";
 abstract contract DataAsset is IDataAsset {
 
 
-    Item[] public items;
-    Offer[][] public offersHistory;
+    address public factory; // 创建该DA的Factory
+    address public creator; // 存储数据资产的创建者
+    address public bidPool; // 每一个dataAsset都有对应的bidPool
 
-
-    address public dataCreator; // 存储数据资产的创建者
-    address public bidPool; // 存储竞拍池地址
-
-    function getDataCreator() external view override returns (address) {
-        return dataCreator;
+    function getFactory() public view override returns (address) {
+        return factory;
     }
 
-    function getItem(uint256 tokenId) external view override returns (Item memory) {
-        return items[tokenId];
+    function getCreator() external view override returns (address) {
+        return creator;
     }
 
-    function getAuctionStatus(uint256 tokenId) external view override returns (uint8) {
-        return items[tokenId].auctionStatus;
-    }
 
     function setBidPool(address _bidPool) public override returns (bool) {
         bidPool = _bidPool;

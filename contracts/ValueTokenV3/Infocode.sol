@@ -2,14 +2,18 @@
 pragma solidity ^0.8.0;
 
 import "../interfaces/IInfocode.sol";
+import "../libraries/ERC20.sol";
 
-contract Infocode is IInfocode {
-    uint256 public totalSupply;
-    constructor(){
-
+contract Infocode is IInfocode, ERC20 {
+    address public immutable BidPoolFactory;
+    constructor(string memory name_, string memory symbol_, address BidPoolFactory_) ERC20(name_, symbol_) {
+        BidPoolFactory = BidPoolFactory_;
     }
 
-    function mint(uint256 amount) public override returns (bool) {
-         return true;
+    // get all BidPools -> walk over all BidPools by index -> for each bid pool get rewards
+
+
+    function mint(address account, uint256 amount) public override {
+         _mint(account, amount);
     }
 }

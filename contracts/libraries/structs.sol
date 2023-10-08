@@ -6,10 +6,10 @@ import "../interfaces/IDataAsset.sol";
 
 
 // 数据资产基础信息
-struct Item {
+struct BasicInfo {
     uint256 itemId;
     address dataAsset; // 指数据资产地址，需要手动转换成数据资产
-    address dataCreator;  // 指数据的最初创建者
+    address creator;  // 指数据的最初创建者
     string uri; // 数据资产的URI
     address owner; // 指数据的当前所有者
     address winner; // 指数据的最终获胜者（即劳动或数据的最终购买者）
@@ -17,16 +17,42 @@ struct Item {
     bytes extraParams;
 }
 
+// 个人价值数据资产的任务参数
+struct TaskParams {
+    uint256 startTimestamp;
+    uint256 endTimestamp;
+    uint256 duration;
+}
+
+// 个人价值数据资产(任务)
+struct PersonalValue {
+    BasicInfo basicInfo;
+    TaskParams taskParams;
+}
+
+// 普通数据资产（成包大数据\数商)
+struct OrdinalData {
+    BasicInfo basicInfo;
+    uint256 size; //数据包大小
+    bytes encryptedHash; //加密后哈希
+}
+
+// 商品数据资产
+struct Commodity {
+    BasicInfo basicInfo;
+    uint256 amount;
+}
+
 
 
 // 竞拍开始条件
 struct Condition {
-    uint256 startTime;
+    uint256 commenceTimestamp;
     uint256 startPrice;
     uint256 reservePrice;
     address bidToken;  //要求的出价代币，通常为Valuecode
     uint256 auctionDuration;
-    uint256 expirationTime;
+    uint256 expirationTimestamp;
     bytes extraParams;
 }
 
