@@ -14,7 +14,6 @@ struct Item {
     address owner; // 指数据的当前所有者
     address winner; // 指数据的最终获胜者（即劳动或数据的最终购买者）
     uint256 timeCreated; // 数据资产创建时间
-    uint8 auctionStatus; // 拍卖状态
     bytes extraParams;
 }
 
@@ -22,7 +21,6 @@ struct Item {
 
 // 竞拍开始条件
 struct Condition {
-    uint256 itemId;
     uint256 startTime;
     uint256 startPrice;
     uint256 reservePrice;
@@ -36,12 +34,18 @@ struct Condition {
 // 出价条件
 // todo: batch bid and itemIds
 struct Offer {
-    uint256 itemId;
     address bidder; // 出价者
     address receiver; // 接收者，可与出价者不同
     uint256 bidAmount; // 以出价代币为计数货币的出价总金额
     uint256 bidTime; //出价时间
     bytes extraParams;
+}
+
+// 出价奖励
+struct Reward {
+    address bidder; // 出价者
+    uint256 amount; //奖励金额
+    uint256 bidTime;
 }
 
 

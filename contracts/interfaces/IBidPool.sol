@@ -5,12 +5,12 @@ import "../libraries/structs.sol";
 
 interface IBidPool {
 
-    function initialize(Condition calldata condition) external;
+    function initialize(uint256 itemId, Condition calldata condition) external;
 
-    function updateCondition(Condition calldata newCondition) external;
+    function getConditionByItemId(uint256 itemId) external view returns (mapping(uint256 => Condition));
 
     // 发起出价
-    function bid(Offer calldata offer) external returns (bool);
+    function bid(uint256 itemId, Offer calldata offer) external returns (uint256);
 
     // 增发infocode作为奖励 todo
 //    function mintInfocode(uint256 amount) internal returns (bool);

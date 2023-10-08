@@ -30,11 +30,15 @@ interface IDataAsset {
 
     // uri包含了数据资产的元数据信息，对于个人价值数据，即时间戳、任务戳、任务相关参数，如交付地点等；
     function createItem(string memory uri) external returns (uint256);
-    // 为BidPool开的转让接口
-    function grantOwnershipToBidPool(uint256 tokenId) external returns (bool);
+
+    function setBidPool(address bidPool) external returns (bool);
+
+
+// 为BidPool开的转让接口
+//    function grantOwnershipToBidPool(uint256 tokenId) external returns (bool);
     // 发起竞拍
-    function startAuction(Condition calldata condition) external returns (bool);
+//    function startAuction(Condition calldata condition) external returns (bool);
 
     // 结束竞拍
-    function endAuction(Condition memory condition) external returns (bool);
+//    function endAuction(Condition memory condition) external returns (bool);
 }

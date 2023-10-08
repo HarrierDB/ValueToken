@@ -8,9 +8,8 @@ import "./NonFungibleDataAsset.sol"; // 导入非同质化数据资产合约
 import "./MultiDuplicateNonFungibleDataAssetContract.sol"; //导入多副本非同质化数据资产合约
 import "./SemiFungibleDataAsset.sol"; // 导入半同质化数据资产合约
 
-contract DataAssetFactory is IDataFactory, Ownable {
-    string private _name;
-    string private _symbol;
+contract DataFactory is IDataFactory, Ownable {
+    address public treasury;
     // 存储创建的数据资产合约地址
     address[] public deployedDataAssets;
     address[] public deployedPersonalValueDataAssets;
@@ -23,9 +22,8 @@ contract DataAssetFactory is IDataFactory, Ownable {
     mapping(address => bool) public blacklist;
 
     // 构造函数
-    constructor(string memory name, string memory symbol) {
-        _name = name;
-        _symbol = symbol;
+    constructor(address _treasury) {
+        treasury = _treasury;
     }
 
     // 实现接口函数 - 添加地址到黑名单

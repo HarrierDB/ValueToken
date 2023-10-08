@@ -13,15 +13,16 @@
   },
   "scripts": {
     "compile": "npx hardhat compile",
-    "deploy": "npx hardhat run scripts/deploy.js --network devnet",
-    "list_information": "npx hardhat run scripts/listInformation.js --network devnet",
-    "bid": "npx hardhat run scripts/bid.js --network devnet",
-    "deployv2": "npx hardhat run scripts/deployV2.js --network devnet",
-    "publish_item": "npx hardhat run scripts/publishItem.js --network devnet",
-    "mint_value_token": "npx hardhat run scripts/mintValueToken.js --network devnet",
-    "authorizeAndSet": "npx hardhat run scripts/authorizeAndSet.js --network devnet",
-    "bid_v2": "npx hardhat run scripts/bidV2.js --network devnet",
-    "bid_v2_individual": "npx hardhat run scripts/bidV2Individual.js --network devnet",
-    "deploy_v3": "npx hardhat run scripts/deployv3.js --network devnet"
+    "deploy": "npx hardhat run scripts/ValuecodeV1/deploy.js --network devnet",
+    "list_information": "npx hardhat run scripts/ValuecodeV1/listInformation.js --network devnet",
+    "bid": "npx hardhat run scripts/ValuecodeV1/bid.js --network devnet",
+    "deployv2": "npx hardhat run scripts/ValuecodeV2/deployV2.js --network devnet",
+    "publish_item": "npx hardhat run scripts/ValuecodeV2/publishItem.js --network devnet",
+    "mint_value_token": "npx hardhat run scripts/ValuecodeV1/mintValueToken.js --network devnet",
+    "authorizeAndSet": "npx hardhat run scripts/ValuecodeV2/authorizeAndSet.js --network devnet",
+    "bid_v2": "npx hardhat run scripts/ValuecodeV2/bidV2.js --network devnet",
+    "bid_v2_individual": "npx hardhat run scripts/ValuecodeV2/bidV2Individual.js --network devnet",
+    "deploy_v3": "npx hardhat run scripts/ValuecodeV3/deployV3.js --network devnet",
+    "create_bidpool": "npx hardhat run scripts/ValuecodeV3/createBidPool.js --network devnet"
   }
 }
