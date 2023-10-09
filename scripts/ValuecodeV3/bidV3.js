@@ -31,7 +31,7 @@ async function main() {
         return offer;
     }
 
-    for (let signerId = 2; signerId < signers.length; signerId++) {
+    for (let signerId = 2; signerId < 20; signerId++) {
         const randomBid = constructRandomBid(signerId);
         const bidPool = new hre.ethers.Contract(bidPoolAddress, BidPool.interface, signers[signerId]);
         const bidTx = await bidPool.bid(itemId, randomBid);

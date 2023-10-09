@@ -23,7 +23,7 @@ async function main() {
         commenceTimestamp: commenceTimestamp, // 一小时以后开始竞拍
         startPrice: ethers.utils.parseUnits("100", 18),
         reservePrice: ethers.utils.parseUnits("50", 18),
-        bidToken: "0x3c0b6110994DCcCaafEE985D020f00840E57b1ef", // 你的代币地址
+        bidToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // 用WETH做测试
         auctionDuration: auctionDuration, //竞拍持续3个小时
         expirationTimestamp: expirationTime,
         extraParams: "0x" // 你的额外参数

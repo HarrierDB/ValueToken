@@ -16,4 +16,9 @@ contract Infocode is IInfocode, ERC20 {
     function mint(address account, uint256 amount) public override {
          _mint(account, amount);
     }
+
+    // reverse指的是infocode转换成valuecode
+    function reverse(uint256 amount) public override {
+        _burn(msg.sender, amount);
+    }
 }
