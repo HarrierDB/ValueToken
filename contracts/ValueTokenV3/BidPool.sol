@@ -40,6 +40,7 @@ contract BidPool is IBidPool, ERC20, Ownable {
         itemIdToCondition[itemId] = condition;
         itemIdToAuctionStatus[itemId] = 1;
 
+
         ERC721(dataAsset).transferFrom(ownerOfItemId, address(this), itemId);
     }
 

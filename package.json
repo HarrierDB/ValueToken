@@ -15,6 +15,7 @@
   "scripts": {
     "compile": "npx hardhat compile",
     "spawn_devnet": "npx hardhat run spawn-devnet.js",
+    "set_balances": "npx hardhat run scripts/setBalances.js --network devnet",
     "deploy": "npx hardhat run scripts/ValuecodeV1/deploy.js --network devnet",
     "list_information": "npx hardhat run scripts/ValuecodeV1/listInformation.js --network devnet",
     "bid": "npx hardhat run scripts/ValuecodeV1/bid.js --network devnet",
@@ -26,6 +27,6 @@
     "bid_v2_individual": "npx hardhat run scripts/ValuecodeV2/bidV2Individual.js --network devnet",
     "deploy_v3": "npx hardhat run scripts/ValuecodeV3/deployV3.js --network devnet",
     "create_bidpool": "npx hardhat run scripts/ValuecodeV3/createBidPool.js --network devnet",
-    "bid_v3": "npx hardhat run scripts/ValuecodeV3/bidV3.js --network devnet"
+    "initialize_bidpool": "npx hardhat run scripts/ValuecodeV3/initializeBidPool.js --network devnet"
   }
 }

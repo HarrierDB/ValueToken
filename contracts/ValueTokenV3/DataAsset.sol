@@ -2,9 +2,10 @@
 pragma solidity ^0.8.0;
 
 import "../interfaces/IDataAsset.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
 
-abstract contract DataAsset is IDataAsset {
+abstract contract DataAsset is IDataAsset, ERC721URIStorage {
 
 
     address public factory; // 创建该DA的Factory
@@ -22,6 +23,7 @@ abstract contract DataAsset is IDataAsset {
 
     function setBidPool(address _bidPool) public override returns (bool) {
         bidPool = _bidPool;
+        super._setApprovalForAll(msg.sender, _bidPool, true);
         return true;
     }
 }
