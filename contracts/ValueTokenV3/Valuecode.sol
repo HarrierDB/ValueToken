@@ -1,12 +1,23 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-contract Valuecode {
+import "../libraries/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol"; // 导入 Ownable 合约
 
-    mapping(uint256 => uint256) public metrics; // 键是结束时间戳，值是过去一个小时内的价值的数学期望，即度量衡单位，默认计算出来也可以人为设定
 
-    constructor(){
 
+contract Valuecode is ERC20, Ownable {
+
+    uint256[] public records; // 记录每个观测的结束时间戳
+    uint256[] public metrics; // 记录每个观测的度量衡单位
+
+    constructor() {
+
+    }
+
+    function getLatestRecord() public view returns (uint256) {
+        require(records.length() > 0, "No records available.");
+        return records[records.length() - 1];
     }
 
     function getLatestMetric() public view returns (uint256) {
@@ -17,7 +28,7 @@ contract Valuecode {
 
     // 入参是观测的开始时间和结束时间
     // 说白了就是观测bidPool的奖励分布？
-    function setLatestMetric(uint256 newValue) public {
+    function setLatestMetric(uint256 newValue) public OnlyOwner {
         require(metrics.length() > 0, "No metrics available.");
         metrics[metrics.length() - 1] = newValue;
     }
