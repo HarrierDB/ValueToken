@@ -26,10 +26,22 @@ async function main() {
     const createBidPoolTx = await bidPoolFactory.createBidPool(name, symbol, dataAssetAddress, 0);
     const createBidPoolReceipt = await createBidPoolTx.wait();
 
+
+
     // 获取新创建的dataasset地址
     const bidPoolAddress = createBidPoolReceipt.events[1].args[0];
     console.log(`4. User ${signers[1].address} created BidPool at ${bidPoolAddress}`);
     replaceOrAddEnvVariable("BID_POOL_ADDRESS", bidPoolAddress);
+
+    await hre.tenderly.persistArtifacts({
+        name: "BidPool",
+        address: bidPoolAddress,
+    })
+
+    await hre.tenderly.verify({
+        name: "BidPool",
+        address: bidPoolAddress,
+    })
 
     const DataAsset = await hre.ethers.getContractFactory("PersonalValueDataAsset");
     const dataAsset = new hre.ethers.Contract(dataAssetAddress, DataAsset.interface, signers[1]);

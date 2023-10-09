@@ -15,7 +15,7 @@ async function main() {
 
     let itemId = 0;
 
-    const commenceTimestamp = Math.floor(Date.now()/1000+3600);
+    const commenceTimestamp = Math.floor(Date.now()/1000);
     const auctionDuration = 3*3600;
     const expirationTime = commenceTimestamp + auctionDuration;
 

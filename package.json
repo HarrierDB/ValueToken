@@ -13,9 +13,9 @@
     "fs": "^0.0.1-security"
   },
   "scripts": {
-    "compile": "npx hardhat compile",
-    "spawn_devnet": "npx hardhat run spawn-devnet.js",
-    "set_balances": "npx hardhat run scripts/setBalances.js --network devnet",
+    "1_compile": "npx hardhat compile",
+    "2_spawn_devnet": "npx hardhat run spawn-devnet.js",
+    "3_set_balances": "npx hardhat run scripts/setBalances.js --network devnet",
     "deploy": "npx hardhat run scripts/ValuecodeV1/deploy.js --network devnet",
     "list_information": "npx hardhat run scripts/ValuecodeV1/listInformation.js --network devnet",
     "bid": "npx hardhat run scripts/ValuecodeV1/bid.js --network devnet",
@@ -25,8 +25,9 @@
     "authorizeAndSet": "npx hardhat run scripts/ValuecodeV2/authorizeAndSet.js --network devnet",
     "bid_v2": "npx hardhat run scripts/ValuecodeV2/bidV2.js --network devnet",
     "bid_v2_individual": "npx hardhat run scripts/ValuecodeV2/bidV2Individual.js --network devnet",
-    "deploy_v3": "npx hardhat run scripts/ValuecodeV3/deployV3.js --network devnet",
-    "create_bidpool": "npx hardhat run scripts/ValuecodeV3/createBidPool.js --network devnet",
-    "initialize_bidpool": "npx hardhat run scripts/ValuecodeV3/initializeBidPool.js --network devnet"
+    "4_deploy_v3": "npx hardhat run scripts/ValuecodeV3/deployV3.js --network devnet",
+    "5_create_bidpool": "npx hardhat run scripts/ValuecodeV3/createBidPool.js --network devnet",
+    "6_initialize_bidpool": "npx hardhat run scripts/ValuecodeV3/initializeBidPool.js --network devnet",
+    "7_bid_v3": "npx hardhat run scripts/ValuecodeV3/bidV3.js --network devnet"
   }
 }
