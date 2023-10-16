@@ -15,8 +15,9 @@ contract PersonalValueDataAsset is DataAsset, Ownable {
     event PersonalValueCreated(uint256 tokenId, address creator, string uri, uint256 startTimestamp, uint256 endTimestamp, uint256 duration);
 
 
-    constructor(string memory name, string memory symbol) ERC721(name, symbol) {
+    constructor(string memory name, string memory symbol, uint256 _timeValue) ERC721(name, symbol) {
         creator = msg.sender;
+        timeValue = _timeValue;
     }
 
     function getTotalDuration() public view returns (uint256) {

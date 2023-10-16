@@ -69,7 +69,7 @@ contract DataFactory is IDataFactory, Ownable {
     }
 
     // 实现接口函数 - 创建数据资产
-    function createDataAsset(string memory name, string memory symbol, uint8 dataType, uint16 dataStandard) external override returns (address) {
+    function createDataAsset(string memory name, string memory symbol, uint256 _timeValue,uint8 dataType, uint16 dataStandard) external override returns (address) {
         // 检查是否在黑名单上
         require(!blacklist[msg.sender], "Address is blacklisted");
 
@@ -106,12 +106,12 @@ contract DataFactory is IDataFactory, Ownable {
     // 适用于个人劳动，规定时间戳、任务戳
     // 可接受721, 1155, 3525标准
     // 根据标准不同，创建不同的数据资产标准
-    function createPersonalValueDataAsset(string memory name, string memory symbol, uint16 dataStandard) internal returns (address) {
+    function createPersonalValueDataAsset(string memory name, string memory symbol, uint256 _timeValue,uint16 dataStandard) internal returns (address) {
 
         address personalValueDataAsset;
 
         if (dataStandard == 721) {
-            personalValueDataAsset = address(new PersonalValueDataAsset(name, symbol));
+            personalValueDataAsset = address(new PersonalValueDataAsset(name, symbol, _timeValue));
         } else if (dataStandard == 1155) {
             personalValueDataAsset = address(new MultiDuplicateNonFungibleDataAssetContract(name, symbol));
         } else if (dataStandard == 3525) {

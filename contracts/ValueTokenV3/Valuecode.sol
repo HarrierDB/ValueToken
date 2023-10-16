@@ -10,6 +10,7 @@ contract Valuecode is ERC20, Ownable {
 
     uint256[] public records; // 记录每个观测的结束时间戳
     uint256[] public metrics; // 记录每个观测的度量衡单位
+    uint256 private topUpRate; // CNY转换比例
 
     constructor() {
 
@@ -38,6 +39,18 @@ contract Valuecode is ERC20, Ownable {
     function convert() public returns (bool) {
         // 要转的话，必须获得一个上一个时刻的基数（数学期望和方差）
 
+        return true;
+    }
+
+    function topUp(uint256 amount) public returns (bool) {
+        // 人民币转成valuecode的入口
+        _balances[msg.sender] += amount * topUpRate;
+        return true;
+    }
+
+    function setTopUpRate(uint256 _topUpRate) public onlyOwner returns (bool) {
+        // 设置CNY转换比例
+        topUpRate = _topUpRate;
         return true;
     }
 }
