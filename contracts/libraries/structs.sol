@@ -67,10 +67,11 @@ struct Offer {
     bytes extraParams;
 }
 
-// 信息含量
-struct infoContent {
+// 信息参数
+struct InfoParams {
     address bidder; // 出价者
-    uint256 amount; //信含金额
+    uint256 targetLength; // 出价对象的时长，针对个人价值数据资产，指的是任务时长
+    uint256 amount; //信含额
     uint256 bidTime;
 }
 

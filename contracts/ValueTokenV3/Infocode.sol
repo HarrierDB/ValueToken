@@ -21,16 +21,16 @@ contract Infocode is IInfocode, ERC20 {
     }
 
     // reverse指的是infocode转换成valuecode
-    function reverse(uint256 amount) public override {
+    function reverse(uint256 amount) public {
         _burn(msg.sender, amount);
     }
 
     // 计算信含基数
     function calculateInfoContentCardinal(uint256 startTimestamp, uint256 endTimestamp) public returns (uint256) {
         uint256 PTVSum;
-        uint256 poolsLength = IBidPoolFactory(BidPoolFactory).getPoolsLength();
+        uint256 poolsLength = IBidPoolFactory(BidPoolFactory).getBidPoolsLength();
         for (uint256 i=0; i<poolsLength; i++) {
-            (_, averagePTV)=IBidPool(BidPoolFactory.getBidPool(i)).getInfoContentsDistribution(startTimestamp, endTimestamp);
+            (, uint256 averagePTV)=IBidPool(IBidPoolFactory(BidPoolFactory).getBidPool(i)).getInfoContentsDistribution(startTimestamp, endTimestamp);
             PTVSum += averagePTV;
         }
         infoContentCardinal  = PTVSum/poolsLength;

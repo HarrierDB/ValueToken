@@ -1,9 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
+import "../libraries/ERC20.sol";
+import "../interfaces/IValueManagementPool.sol";
+import "../interfaces/IValueManagementPoolCallee.sol";
+import "../interfaces/IDataAsset.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-
-contract ValueManagementPool {
+contract ValueManagementPool is IValueManagementPool, ERC20 {
     address public dataAsset;
     address public valuecode;
 
@@ -24,7 +28,7 @@ contract ValueManagementPool {
     // 5. 再拿到价值管理工程师的时值；
     // 6. 再把时值加到DA的Valuecode里；
     // 7. 最后将DA转回VMPool；
-    function manageValue(uint256 tokenId, address timeValue,uint256 timeLength, bytes extraParams) public {
+    function manageValue(uint256 tokenId, address timeValue,uint256 timeLength, bytes calldata extraParams) public {
         // 1先将DA转给管理工程师；
         ERC721(dataAsset).transferFrom(address(this), msg.sender, tokenId);
         // 2. 再调回调接口；

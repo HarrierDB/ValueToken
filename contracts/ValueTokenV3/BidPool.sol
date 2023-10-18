@@ -13,14 +13,16 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract BidPool is IBidPool, ERC20, Ownable {
     address public dataAsset;
+    uint256[] public itemIds;
     uint256 private behaviorInfoContent; //只要出价均可获得的奖励
     uint256 private totalEffectiveOfferCount; // 该出价池对应的所有itemId对应的所有offer总数；
+    uint256 public infoContentCardinal; //信含基数
 
     mapping(uint256 => uint8) private itemIdToAuctionStatus; // 一个itemId对应一个竞拍状态
     mapping(uint256 => Condition) private itemIdToCondition; // 一个竞拍对应一个条件
     mapping(uint256 => Offer[]) private itemIdToOffers; //一个itemId对应多个offer
     mapping(uint256 => Offer) private itemIdToCurrentOffer; // 一个itemId对应一个目前最高出价；
-    mapping(uint256 => infoContent[]) private itemIdToInfoContents; // 一个itemId对应多个出价信含（与多个offer一一对应）
+    mapping(uint256 => InfoParams[]) private itemIdToInfoCluster; // 一个itemId对应多个出价信息簇（与多个offer一一对应）
 
     // 定义 InfoContentDistribution 结构体
     struct InfoContentDistribution {
@@ -39,7 +41,7 @@ contract BidPool is IBidPool, ERC20, Ownable {
         require(ownerOfItemId == msg.sender);
         itemIdToCondition[itemId] = condition;
         itemIdToAuctionStatus[itemId] = 1;
-
+        itemIds.push(itemId);
 
         ERC721(dataAsset).transferFrom(ownerOfItemId, address(this), itemId);
     }
@@ -98,29 +100,29 @@ contract BidPool is IBidPool, ERC20, Ownable {
         return behaviorInfoContent + priceInfoContent;
     }
 
-    function getInfoContentsDistributionById(uint256 tokenId, uint256 startTimestamp, uint256 endTimestamp) public view returns (InfoContentDistribution memory) {
-        uint256 infoContentSum;
-        uint256 duration = IPersonalValueDataAsset(dataAsset).getDurationById(tokenId);
-        for (uint256 i=0; i< itemIdToInfoContents[tokenId].length; i++) {
-            if ((itemIdToInfoContents[tokenId][i].bidTime>startTimestamp) && (itemIdToInfoContents[tokenId][i].bidTime<endTimestamp)) {
-                infoContentSum += itemIdToInfoContents[tokenId][i].amount;
-            }
-        }
-        uint256 personalTimeValue = infoContentSum / duration; // 本段时间内,该tokenId对应的奖励对应的时值
-        return InfoContentDistribution({infoContentSum : infoContentSum, infoContentAverage : personalTimeValue});
-    }
-
-    function getInfoContentsDistribution(uint256 startTimestamp, uint256 endTimestamp) public view returns (uint256, uint256) {
-        uint256 totalInfoContentSum;
-        uint256 totalPTV;
-        for (uint256 i=0; i<ERC721(dataAsset).totalSupply();i++) {
-            totalInfoContentSum+=getInfoContentsDistributionById(i, startTimestamp, endTimestamp).infoContentSum;
-            totalPTV+=getInfoContentsDistributionById(i, startTimestamp,endTimestamp).infoContentAverage;
-        }
-        uint256 averageInfoContentSum = totalInfoContentSum / ERC721(dataAsset).totalSupply();
-        uint256 averagePTV = totalPTV / ERC721(dataAsset).totalSupply();
-        return (averageInfoContentSum, averagePTV);
-    }
+//    function getInfoContentsDistributionById(uint256 tokenId, uint256 startTimestamp, uint256 endTimestamp) public view returns (InfoContentDistribution memory) {
+//        uint256 infoContentSum;
+//        uint256 duration = IPersonalValueDataAsset(dataAsset).getDurationById(tokenId);
+//        for (uint256 i=0; i< itemIdToInfoContents[tokenId].length; i++) {
+//            if ((itemIdToInfoContents[tokenId][i].bidTime>startTimestamp) && (itemIdToInfoContents[tokenId][i].bidTime<endTimestamp)) {
+//                infoContentSum += itemIdToInfoContents[tokenId][i].amount;
+//            }
+//        }
+//        uint256 personalTimeValue = infoContentSum / duration; // 本段时间内,该tokenId对应的奖励对应的时值
+//        return InfoContentDistribution({infoContentSum : infoContentSum, infoContentAverage : personalTimeValue});
+//    }
+//
+//    function getInfoContentsDistribution(uint256 startTimestamp, uint256 endTimestamp) public view override returns (uint256, uint256) {
+//        uint256 totalInfoContentSum;
+//        uint256 totalPTV;
+//        for (uint256 i=0; i<ERC721(dataAsset).totalSupply();i++) {
+//            totalInfoContentSum+=getInfoContentsDistributionById(i, startTimestamp, endTimestamp).infoContentSum;
+//            totalPTV+=getInfoContentsDistributionById(i, startTimestamp,endTimestamp).infoContentAverage;
+//        }
+//        uint256 averageInfoContentSum = totalInfoContentSum / ERC721(dataAsset).totalSupply();
+//        uint256 averagePTV = totalPTV / ERC721(dataAsset).totalSupply();
+//        return (averageInfoContentSum, averagePTV);
+//    }
 
 
 

@@ -5,6 +5,7 @@ import "../libraries/structs.sol";
 
 interface IBidPool {
 
+
     function initialize(uint256 itemId, Condition calldata condition) external;
 
     function getConditionByItemId(uint256 itemId) external view returns (Condition calldata);

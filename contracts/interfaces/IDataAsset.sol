@@ -29,5 +29,5 @@ interface IDataAsset {
 
     function setBidPool(address bidPool) external returns (bool);
 
-    function setValuecode(uint256 tokenId, uint256 _valuecode) public returns (bool);
+    function setValuecode(uint256 tokenId, uint256 _valuecode) external returns (bool);
 }
