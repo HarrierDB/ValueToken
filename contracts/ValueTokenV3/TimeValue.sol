@@ -23,4 +23,11 @@ contract TimeValue is ERC20 {
         emit Transfer(address(0), account, amount);
     }
 
+    function addBalance(address account, uint256 amount) public onlyOwner {
+        _balances[account] += amount;
+        _totalSupply += amount;
+
+        emit Transfer(address(0), account, amount);
+    }
+
 }

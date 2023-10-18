@@ -67,10 +67,10 @@ struct Offer {
     bytes extraParams;
 }
 
-// 出价奖励
-struct Reward {
+// 信息含量
+struct infoContent {
     address bidder; // 出价者
-    uint256 amount; //奖励金额
+    uint256 amount; //信含金额
     uint256 bidTime;
 }
 

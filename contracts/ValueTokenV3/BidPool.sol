@@ -13,25 +13,25 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract BidPool is IBidPool, ERC20, Ownable {
     address public dataAsset;
-    uint256 private basicReward; //只要出价均可获得的奖励
+    uint256 private behaviorInfoContent; //只要出价均可获得的奖励
     uint256 private totalEffectiveOfferCount; // 该出价池对应的所有itemId对应的所有offer总数；
 
     mapping(uint256 => uint8) private itemIdToAuctionStatus; // 一个itemId对应一个竞拍状态
     mapping(uint256 => Condition) private itemIdToCondition; // 一个竞拍对应一个条件
     mapping(uint256 => Offer[]) private itemIdToOffers; //一个itemId对应多个offer
     mapping(uint256 => Offer) private itemIdToCurrentOffer; // 一个itemId对应一个目前最高出价；
-    mapping(uint256 => Reward[]) private itemIdToRewards; // 一个itemId对应多个出价奖励（与多个offer一一对应）
+    mapping(uint256 => infoContent[]) private itemIdToInfoContents; // 一个itemId对应多个出价信含（与多个offer一一对应）
 
-    // 定义 RewardsDistribution 结构体
-    struct RewardDistribution {
-        uint256 rewardSum; // 和
-        uint256 rewardAverage; // 平均数
+    // 定义 InfoContentDistribution 结构体
+    struct InfoContentDistribution {
+        uint256 infoContentSum; // 和
+        uint256 infoContentAverage; // 平均数
     }
 
 
-    constructor(string memory name_, string memory symbol_, address dataAsset_, uint256 basicReward_) ERC20(name_, symbol_) {
+    constructor(string memory name_, string memory symbol_, address dataAsset_, uint256 behaviorInfoContent_) ERC20(name_, symbol_) {
         dataAsset = dataAsset_;
-        basicReward = basicReward_;
+        behaviorInfoContent = behaviorInfoContent_;
     }
 
     function initialize(uint256 itemId, Condition calldata condition) public override {
@@ -48,8 +48,8 @@ contract BidPool is IBidPool, ERC20, Ownable {
         return itemIdToCondition[itemId];
     }
 
-    function setBasicReward(uint256 basicReward_) public {
-        basicReward = basicReward_;
+    function setBasicInfoContent(uint256 basicInfoContent_) public {
+        behaviorInfoContent = basicInfoContent_;
     }
 
     function bid(uint256 itemId, Offer calldata offer) public override returns (uint256) {
@@ -62,15 +62,15 @@ contract BidPool is IBidPool, ERC20, Ownable {
         require( (block.timestamp <= itemIdToCondition[itemId].commenceTimestamp + itemIdToCondition[itemId].auctionDuration) || (block.timestamp < itemIdToCondition[itemId].expirationTimestamp), "Auction has ended.");
 
         itemIdToOffers[itemId].push(offer); // 不论是否是最高价，都记录到历史出价中
-        uint256 extraReward = offer.bidAmount > itemIdToCurrentOffer[itemId].bidAmount? offer.bidAmount - itemIdToCurrentOffer[itemId].bidAmount : 0;
+        uint256 priceInfoContent = offer.bidAmount > itemIdToCurrentOffer[itemId].bidAmount? offer.bidAmount - itemIdToCurrentOffer[itemId].bidAmount : 0;
 
-        itemIdToRewards[itemId].push(Reward({
+        itemIdToInfoContents[itemId].push(InfoContent({
             bidder : msg.sender,
-            amount : basicReward+extraReward,
+            amount : behaviorInfoContent + priceInfoContent,
             bidTime : block.timestamp
         }));
 
-        if (extraReward>0) {
+        if (priceInfoContent >0) {
             // 删除现有最高出价
             delete itemIdToCurrentOffer[itemId];
             // 将最新出价置为现有最高出价
@@ -95,66 +95,34 @@ contract BidPool is IBidPool, ERC20, Ownable {
         (bool success, bytes memory data) = itemIdToCondition[itemId].bidToken.call(abi.encodeWithSignature("transferFrom(address,address,uint256)", offer.bidder, address(this), offer.bidAmount));
         require(success, "Transfer bid token failed.");
 
-        return basicReward+extraReward;
+        return behaviorInfoContent + priceInfoContent;
     }
 
-    function getRewardsDistributionById(uint256 tokenId, uint256 startTimestamp, uint256 endTimestamp) public view returns (RewardDistribution memory) {
-        uint256 rewardSum;
+    function getInfoContentsDistributionById(uint256 tokenId, uint256 startTimestamp, uint256 endTimestamp) public view returns (InfoContentDistribution memory) {
+        uint256 infoContentSum;
         uint256 duration = IPersonalValueDataAsset(dataAsset).getDurationById(tokenId);
-        for (uint256 i=0; i<itemIdToRewards[tokenId].length; i++) {
-            if ((itemIdToRewards[tokenId][i].bidTime>startTimestamp) && (itemIdToRewards[tokenId][i].bidTime<endTimestamp)) {
-                rewardSum += itemIdToRewards[tokenId][i].amount;
+        for (uint256 i=0; i< itemIdToInfoContents[tokenId].length; i++) {
+            if ((itemIdToInfoContents[tokenId][i].bidTime>startTimestamp) && (itemIdToInfoContents[tokenId][i].bidTime<endTimestamp)) {
+                infoContentSum += itemIdToInfoContents[tokenId][i].amount;
             }
         }
-        uint256 personalTimeValue = rewardSum / duration; // 本段时间内,该tokenId对应的奖励对应的时值
-        return RewardDistribution({rewardSum : rewardSum, rewardAverage : personalTimeValue});
+        uint256 personalTimeValue = infoContentSum / duration; // 本段时间内,该tokenId对应的奖励对应的时值
+        return InfoContentDistribution({infoContentSum : infoContentSum, infoContentAverage : personalTimeValue});
     }
 
-    function getRewardsDistribution(uint256 startTimestamp, uint256 endTimestamp) public view returns (uint256, uint256) {
-        uint256 totalRewardSum;
+    function getInfoContentsDistribution(uint256 startTimestamp, uint256 endTimestamp) public view returns (uint256, uint256) {
+        uint256 totalInfoContentSum;
         uint256 totalPTV;
         for (uint256 i=0; i<ERC721(dataAsset).totalSupply();i++) {
-            totalRewardSum+=getRewardsDistributionById(i, startTimestamp, endTimestamp).rewardSum;
-            totalPTV+=getRewardsDistributionById(i, startTimestamp,endTimestamp).rewardAverage;
+            totalInfoContentSum+=getInfoContentsDistributionById(i, startTimestamp, endTimestamp).infoContentSum;
+            totalPTV+=getInfoContentsDistributionById(i, startTimestamp,endTimestamp).infoContentAverage;
         }
-        uint256 averageRewardSum = totalRewardSum / ERC721(dataAsset).totalSupply();
+        uint256 averageInfoContentSum = totalInfoContentSum / ERC721(dataAsset).totalSupply();
         uint256 averagePTV = totalPTV / ERC721(dataAsset).totalSupply();
-        return (averageRewardSum, averagePTV);
+        return (averageInfoContentSum, averagePTV);
     }
 
-//    function mintInfocode(uint256 amount) internal returns (bool) {
-//        infocode.mint(amount);
-//        return true;
-//    }
 
-//    function distributeRewards(mapping (address => uint256) rewardHistory) public returns (mapping(uint256 => uint256)) {
-//        uint256 totalRewards;
-//        uint256 memory i;
-//        uint256 memory j;
-//        for (i==0; i< rewardList.length; i++) {
-//            for (j==0; j< rewardList[i].length; j++) {
-//                mintInfocode(rewardList[i][j]);
-//                totalRewards += totalRewards;
-//            }
-//        }
-//
-//        return true;
-//    }
-
-//    function calculateRewards(Offer[][] offersHistory) internal returns (bool) {
-//        uint256 memory i;
-//        uint256 memory j;
-//        for (i==0; i<offersHistory.length; i++) {
-//            for (j==0; j<offersHistory[i].length; j++) {
-//                if (j ==0) {
-//                    rewardList[i][j] == 0;
-//                } else {
-//                    rewardList[i][j] == offersHistory[i][j].bidAmount - offersHistory[i][j-1].bidAmount;
-//                }
-//            }
-//        }
-//        return true;
-//    }
 
 
 }

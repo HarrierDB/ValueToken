@@ -20,13 +20,13 @@ contract BidPoolFactory is IBidPoolFactory {
     }
 
     // 实现接口函数 - 获取出价池
-    function getBidPool(uint256 index) external view override returns (address) {
+    function getBidPool(uint256 index) public view override returns (address) {
         // 根据index返回数据资产地址
         return deployedBidPools[index];
     }
 
     // 实现接口函数 - 获取出价池总数
-    function getBidPoolsLength() external view override returns (uint256) {
+    function getBidPoolsLength() public view override returns (uint256) {
         // 返回数据资产的总数量
         return deployedBidPools.length;
     }

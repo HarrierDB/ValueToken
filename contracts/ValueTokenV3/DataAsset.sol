@@ -12,10 +12,8 @@ abstract contract DataAsset is IDataAsset, ERC721URIStorage {
     address public creator; // 存储数据资产的创建者
     address public bidPool; // 每一个dataAsset都有对应的bidPool
     uint256 public timeValue; // 该数据资产创建者的时值
+    uint256 public valuecode; // 该数据资产的价值码
 
-    function getTimeValue() external view override returns (uint256) {
-        return timeValue;
-    }
 
     function getFactory() public view override returns (address) {
         return factory;
@@ -25,10 +23,22 @@ abstract contract DataAsset is IDataAsset, ERC721URIStorage {
         return creator;
     }
 
+    function getTimeValue() external view override returns (uint256) {
+        return timeValue;
+    }
+
+    function getValuecode() external view override returns (uint256) {
+        return valuecode;
+    }
 
     function setBidPool(address _bidPool) public override returns (bool) {
         bidPool = _bidPool;
         super._setApprovalForAll(msg.sender, _bidPool, true);
+        return true;
+    }
+
+    function setValuecode(uint256 tokenId, uint256 _valuecode) public override returns (bool) {
+        valuecode = _valuecode;
         return true;
     }
 }

@@ -29,12 +29,5 @@ interface IDataAsset {
 
     function setBidPool(address bidPool) external returns (bool);
 
-
-// 为BidPool开的转让接口
-//    function grantOwnershipToBidPool(uint256 tokenId) external returns (bool);
-    // 发起竞拍
-//    function startAuction(Condition calldata condition) external returns (bool);
-
-    // 结束竞拍
-//    function endAuction(Condition memory condition) external returns (bool);
+    function setValuecode(uint256 tokenId, uint256 _valuecode) public returns (bool);
 }
