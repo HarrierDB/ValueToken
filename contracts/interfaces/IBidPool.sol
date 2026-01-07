@@ -13,6 +13,4 @@ interface IBidPool {
     // 发起出价
     function bid(uint256 itemId, Offer calldata offer) external returns (uint256);
 
-    function getInfoContentsDistribution(uint256 startTimestamp, uint256 endTimestamp) external view returns (uint256, uint256);
-
 }
